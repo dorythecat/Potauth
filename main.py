@@ -228,7 +228,7 @@ def get_image_bytes(image: str) -> bytes:
 
 @app.get("/get_images",
          response_model=Images)
-async def get_images(token: str = Depends(get_current_token)) -> Images:
+async def get_images(username: str) -> Images:
     """Get a list of images, eight fodder, one the user image."""
     with open("images/fodder/fodder_id", "r") as f:
         fodder_id = int(f.read().strip())
@@ -240,7 +240,7 @@ async def get_images(token: str = Depends(get_current_token)) -> Images:
             images.append(f"images/fodder/{random_id}_{random.randint(0, 9)}.webp")
         if len(images) == 8:
             break
-    images.append(f"images/users/{token}.webp")
+    images.append(f"images/users/{username}.webp")
     random.shuffle(images)
 
     return Images(
