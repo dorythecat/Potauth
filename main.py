@@ -7,11 +7,14 @@ import os
 from fastapi import Depends, FastAPI, HTTPException, Security, Body, Response, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from datetime import datetime, timedelta, timezone
 
 from PIL import Image
 from io import BytesIO
+
+from starlette.responses import RedirectResponse
 
 app = FastAPI(
     title="Potauth API",
@@ -45,6 +48,11 @@ DATABASE_PATH = "potauth.db" # TODO
 
 ALGORITHM = "HS256" # Algorith for JWT to use to encode tokens
 security = HTTPBearer()
+
+@app.get("/", include_in_schema=False)
+async def root() -> RedirectResponse:
+    return RedirectResponse("/docs", status_code=301)
+
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     to_encode = data.copy()
