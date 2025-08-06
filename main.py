@@ -164,21 +164,53 @@ async def add_fodder(image: Annotated[bytes, File(description="The image to send
 
 
 class Images(BaseModel):
-    image0: Annotated[str, File()]
-    image1: Annotated[str, File()]
-    image2: Annotated[str, File()]
-    image3: Annotated[str, File()]
-    image4: Annotated[str, File()]
-    image5: Annotated[str, File()]
-    image6: Annotated[str, File()]
-    image7: Annotated[str, File()]
-    image8: Annotated[str, File()]
+    image0: Annotated[bytes, File()]
+    image1: Annotated[bytes, File()]
+    image2: Annotated[bytes, File()]
+    image3: Annotated[bytes, File()]
+    image4: Annotated[bytes, File()]
+    image5: Annotated[bytes, File()]
+    image6: Annotated[bytes, File()]
+    image7: Annotated[bytes, File()]
+    image8: Annotated[bytes, File()]
+
+
+def get_image_bytes(image: str) -> bytes:
+    """Get the image bytes from the image string."""
+    img = Image.open(image)
+    img_byte_arr = BytesIO()
+    img.save(img_byte_arr, format='WEBP')
+    return img_byte_arr.getvalue().hex()
+
 
 @app.get("/get_images",
          response_model=Images)
 async def get_images(token: str = Depends(get_current_token)) -> Images:
     """Get a list of images, eight fodder, one the user image."""
-    return None # TODO
+    with open("images/fodder/fodder_id", "r") as f:
+        fodder_id = int(f.read().strip())
+
+    images = []
+    while True:
+        random_id = random.randint(0, fodder_id - 1)
+        if random_id not in images:
+            images.append(f"images/fodder/{random_id}_{random.randint(0, 9)}.webp")
+        if len(images) == 8:
+            break
+    images.append(f"images/users/{token}.webp")
+    random.shuffle(images)
+
+    return Images(
+        image0=get_image_bytes(images[0]),
+        image1=get_image_bytes(images[1]),
+        image2=get_image_bytes(images[2]),
+        image3=get_image_bytes(images[3]),
+        image4=get_image_bytes(images[4]),
+        image5=get_image_bytes(images[5]),
+        image6=get_image_bytes(images[6]),
+        image7=get_image_bytes(images[7]),
+        image8=get_image_bytes(images[8]),
+    )
 
 
 @app.put("/get_code")
