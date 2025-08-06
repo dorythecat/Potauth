@@ -11,6 +11,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import RedirectResponse, JSONResponse
 from pydantic import BaseModel
 from datetime import datetime, timedelta, timezone
+from jwt import InvalidTokenError
 
 from PIL import Image
 from io import BytesIO
@@ -118,9 +119,6 @@ def login(username: str,
         lines = f.readlines()
         for line in lines:
             line = line.strip().split(":")
-            print(line)
-            print(favourite_potato.value)
-            print(potato_code)
             if line[0] == username:
                 if line[1] == str(favourite_potato.value) and line[2] == str(potato_code):
                     if not os.path.exists("images/users"):
