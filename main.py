@@ -1,10 +1,13 @@
 import jwt
 
-from fastapi import Depends, FastAPI, HTTPException, Security, Body
+from fastapi import Depends, FastAPI, HTTPException, Security, Body, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from jwt import InvalidTokenError
 from pydantic import BaseModel
+from datetime import datetime, timedelta, timezone
+
+from PIL import Image
+from io import BytesIO
 
 app = FastAPI(
     title="Potauth API",
@@ -64,6 +67,7 @@ async def get_current_token(credentials: HTTPAuthorizationCredentials = Security
 class ErrorMessage(BaseModel):
     message: str
 
+
 @app.get("/login",
          response_model=None,
          responses={
@@ -74,3 +78,21 @@ class ErrorMessage(BaseModel):
 def login(): # TODO
     """Login to the API."""
     return None
+
+
+@app.get("/testpotato",
+         responses = {
+             200: {
+                 "content": {"image/png": {}}
+             }
+         },
+         response_class=Response
+)
+async def get_image():
+    img = Image.open('testpotato.png', mode='r')
+    img_byte_arr = BytesIO()
+    img.save(img_byte_arr, format='PNG')
+    img_byte_arr = img_byte_arr.getvalue()
+
+    # media_type here sets the media type of the actual response sent to the client.
+    return Response(content=img_byte_arr, media_type="image/png")
