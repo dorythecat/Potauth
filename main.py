@@ -1,6 +1,8 @@
+from typing import Annotated
+
 import jwt
 
-from fastapi import Depends, FastAPI, HTTPException, Security, Body, Response
+from fastapi import Depends, FastAPI, HTTPException, Security, Body, Response, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
@@ -80,11 +82,17 @@ def login(): # TODO
     return None
 
 
+@app.put("/send_image")
+async def send_image(image: Annotated[bytes, File(description="The image to send.")]):
+    """Send an image to the API."""
+    img = Image.open(BytesIO(image))
+    img = img.crop((0, 0, 256, 256))
+    img.save('test.png')
+
+
 @app.get("/testpotato",
          responses = {
-             200: {
-                 "content": {"image/png": {}}
-             }
+             200: { "content": {"image/png": {}}}
          },
          response_class=Response
 )
