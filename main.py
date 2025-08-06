@@ -119,25 +119,68 @@ def login(username: str,
         lines = f.readlines()
         for line in lines:
             line = line.strip().split(":")
-            if line[0] == username:
-                if line[1] == str(favourite_potato.value) and line[2] == str(potato_code):
-                    if not os.path.exists("images/users"):
-                        os.mkdir("images/users")
-                    if not os.path.exists(f"images/users/{username}.webp"):
-                        return JSONResponse(status_code=404, content={"message": "User does no exist."})
-
-                    # Check image
-                    img = Image.open(BytesIO(image))
-                    img_byte_arr = BytesIO()
-                    img.save(img_byte_arr, format='WEBP')
-                    potato_code = get_potato_code(img_byte_arr.getvalue())
-
-                    if potato_code != int(line[2]):
-                        return JSONResponse(status_code=401, content={"message": "Incorrect potato."})
-
-                    return create_access_token({"access_token": username})
+            if line[0] != username:
+                continue
+            if line[1] != str(favourite_potato.value) or line[2] != str(potato_code):
                 return JSONResponse(status_code=401, content={"message": "Incorrect login data."})
-        return JSONResponse(status_code=404, content={"message": "User does not exist."})
+            if not os.path.exists("images/users"):
+                os.mkdir("images/users")
+            if not os.path.exists(f"images/users/{username}.webp"):
+                return JSONResponse(status_code=404, content={"message": "User does not exist."})
+
+            # Check image
+            img = Image.open(BytesIO(image))
+            img_byte_arr = BytesIO()
+            img.save(img_byte_arr, format='WEBP')
+            potato_code = get_potato_code(img_byte_arr.getvalue())
+
+            if potato_code != int(line[2]):
+                return JSONResponse(status_code=401, content={"message": "Incorrect potato."})
+
+            return create_access_token({"access_token": username})
+    return JSONResponse(status_code=404, content={"message": "User does not exist."})
+
+
+class RegisterResponse(BaseModel):
+    access_token: str
+    potato_code: int
+
+
+@app.post("/register",
+          response_model=RegisterResponse,
+          responses={
+              401: {"model": ErrorMessage},
+              404: {"model": ErrorMessage}
+          })
+def register(username: str,
+             favourite_potato: PotatoType,
+             image: Annotated[bytes, File(description="Selected image")]) -> RegisterResponse | JSONResponse:
+    """Register a new user."""
+    img = Image.open(BytesIO(image))
+    img_byte_arr = BytesIO()
+    img.save(img_byte_arr, format='WEBP')
+    potato_code = get_potato_code(img_byte_arr.getvalue())
+
+    if os.path.exists(DATABASE_PATH):
+        with open(DATABASE_PATH, "r") as f:
+            lines = f.readlines()
+            for line in lines:
+                line = line.strip().split(":")
+                if line[0] == username:
+                    return JSONResponse(status_code=401, content={"message": "User already exists."})
+        with open(DATABASE_PATH, "a+") as f:
+            f.write(f"\n{username}:{favourite_potato.value}:{potato_code}")
+            img = Image.open(BytesIO(image))
+            img.save(f"images/users/{username}.webp")
+            return RegisterResponse(access_token=create_access_token({"access_token": username}),
+                                    potato_code=potato_code)
+    else:
+        with open(DATABASE_PATH, "w+") as f:
+            f.write(f"{username}:{favourite_potato.value}:{potato_code}")
+            img = Image.open(BytesIO(image))
+            img.save(f"images/users/{username}.webp")
+            return RegisterResponse(access_token=create_access_token({"access_token": username}),
+                                    potato_code=potato_code)
 
 
 @app.put("/add_fodder")
