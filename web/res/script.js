@@ -2,6 +2,7 @@ const API_URL ="http://127.0.0.1:8000"
 
 const potato_login_container = document.getElementById("potato_login_container");
 const login = document.getElementById("login");
+const content = document.getElementById("content");
 
 document.getElementById("login_button_one").onclick = function() {
     const username = document.getElementById("username_login").value;
@@ -65,4 +66,5 @@ function getCookie(name) {
 
 if (document.cookie.includes("token=")) {
     login.style.display = "none";
+    content.style.display = "block";
 }
