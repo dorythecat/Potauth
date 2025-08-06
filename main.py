@@ -76,6 +76,12 @@ async def get_current_token(credentials: HTTPAuthorizationCredentials = Security
         )
 
 
+
+def get_potato_code(img: bytes) -> int:
+    """Get the potato code from an image."""
+    return int(''.join(img_byte_arr.hex().translate(''.maketrans('abcdef', '192837')).split("0"))[::-1][:4300]) % 9007199254740991
+
+
 class ErrorMessage(BaseModel):
     message: str
 
@@ -139,9 +145,7 @@ async def get_code(image: Annotated[bytes, File(description="The image to send."
     img = Image.open(BytesIO(image))
     img_byte_arr = BytesIO()
     img.save(img_byte_arr, format='WEBP')
-    img_byte_arr = img_byte_arr.getvalue()
-    processed = ''.join(img_byte_arr.hex().translate(''.maketrans('abcdef', '192837')).split("0"))
-    return str(int(processed[::-1][:4300]) % 9007199254740991)
+    return get_potato_code(img_byte_arr.getvalue())
 
 @app.get("/testpotato",
          responses = {
