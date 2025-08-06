@@ -1,6 +1,7 @@
 const API_URL ="http://127.0.0.1:8000"
 
 const potato_login_container = document.getElementById("potato_login_container");
+const login = document.getElementById("login");
 
 document.getElementById("login_button_one").onclick = function() {
     const username = document.getElementById("username_login").value;
@@ -44,6 +45,24 @@ for (let potato of potato_login_container.children) {
             method: "POST",
             headers: {},
             body: formData
-        })
+        }).catch(err => {
+            console.log(err);
+        }).then(r => r.json()).then(r => {
+            document.cookie = "username=" + username;
+            document.cookie = "potatoType=" + potatoType;
+            document.cookie = "token=" + r;
+            window.location.reload();
+        });
     }
+}
+
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return "";
+}
+
+if (document.cookie.includes("token=")) {
+    login.style.display = "none";
 }
