@@ -115,6 +115,24 @@ async def add_fodder(image: Annotated[bytes, File(description="The image to send
         f.write(str(fodder_id + 1))
 
 
+class Images(BaseModel):
+    image0: Annotated[str, File()]
+    image1: Annotated[str, File()]
+    image2: Annotated[str, File()]
+    image3: Annotated[str, File()]
+    image4: Annotated[str, File()]
+    image5: Annotated[str, File()]
+    image6: Annotated[str, File()]
+    image7: Annotated[str, File()]
+    image8: Annotated[str, File()]
+
+@app.get("/get_images",
+         response_model=Images)
+async def get_images(token: str = Depends(get_current_token)) -> Images:
+    """Get a list of images, eight fodder, one the user image."""
+    return None # TODO
+
+
 @app.put("/get_code")
 async def get_code(image: Annotated[bytes, File(description="The image to send.")]):
     """Gives you the potato code for your potato."""
