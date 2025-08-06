@@ -1,6 +1,7 @@
 from typing import Annotated
 
 import jwt
+import random
 
 from fastapi import Depends, FastAPI, HTTPException, Security, Body, Response, File
 from fastapi.middleware.cors import CORSMiddleware
@@ -83,11 +84,13 @@ def login(): # TODO
 
 
 @app.put("/send_image")
-async def send_image(image: Annotated[bytes, File(description="The image to send.")]):
+async def send_image(image: Annotated[bytes, File(description="The image to send.")],
+                     save_name: str):
     """Send an image to the API."""
     img = Image.open(BytesIO(image))
-    img = img.crop((0, 0, 256, 256))
-    img.save('test.png')
+    start_corner = random.randint(0, img.size[0] - 256), random.randint(0, img.size[1] - 256)
+    img = img.crop((start_corner[0], start_corner[1], start_corner[0] + 256, start_corner[1] + 256))
+    img.save(save_name + ".webp")
 
 
 @app.get("/testpotato",
