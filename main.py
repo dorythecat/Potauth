@@ -2,6 +2,7 @@ from typing import Annotated
 
 import jwt
 import random
+import os
 
 from fastapi import Depends, FastAPI, HTTPException, Security, Body, Response, File
 from fastapi.middleware.cors import CORSMiddleware
@@ -83,14 +84,27 @@ def login(): # TODO
     return None
 
 
-@app.put("/send_image")
-async def send_image(image: Annotated[bytes, File(description="The image to send.")],
-                     save_name: str):
-    """Send an image to the API."""
+@app.put("/add_fodder")
+async def add_fodder(image: Annotated[bytes, File(description="The image to send.")]):
+    """Send a potato to the API, that will be added to the fodder list."""
+    # Check the max fodder ID
+    if not os.path.exists("images/fodder/fodder_id"):
+        with open("images/fodder/fodder_id", "w+") as f:
+            f.write("0")
+
+    with open("images/fodder/fodder_id", "r") as f:
+        fodder_id = int(f.read().strip())
+
+    # Open the image
     img = Image.open(BytesIO(image))
-    start_corner = random.randint(0, img.size[0] - 256), random.randint(0, img.size[1] - 256)
-    img = img.crop((start_corner[0], start_corner[1], start_corner[0] + 256, start_corner[1] + 256))
-    img.save(save_name + ".webp")
+    for i in range(10):
+        # Randomly crop 10 times and save the cropped versions
+        start_corner = random.randint(0, img.size[0] - 256), random.randint(0, img.size[1] - 256)
+        cropped_img = img.crop((start_corner[0], start_corner[1], start_corner[0] + 256, start_corner[1] + 256))
+        cropped_img.save(f"images/fodder/{fodder_id}_{i}" + ".webp")
+
+    with open("images/fodder/fodder_id", "w+") as f:
+        f.write(str(fodder_id + 1))
 
 
 @app.get("/testpotato",
