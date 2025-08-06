@@ -103,11 +103,15 @@ ul {
     flex-wrap: wrap;
     padding: 0 4px;
     justify-content: center;
+    margin: auto;
+    max-width: 394px;
+    width: 100%;
 }
 
 .potato_login_container img {
     margin: 4px;
     width: 30%;
+    max-width: 128px;
     object-fit: cover;
     border-radius: 5px;
     box-shadow: 0 0 10px #ffffff;

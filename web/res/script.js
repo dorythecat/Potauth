@@ -24,11 +24,7 @@ document.getElementById("login_button_one").onclick = function() {
         potato_login_container.children[6].src = `data:image/WEBP;base64,${res['image6']}`;
         potato_login_container.children[7].src = `data:image/WEBP;base64,${res['image7']}`;
         potato_login_container.children[8].src = `data:image/WEBP;base64,${res['image8']}`;
+
+        potato_login_container.style.display = "flex";
     });
-
-    for (let i = 0; i < 9; i++) {
-
-    }
-
-    potato_login_container.style.display = "flex";
 }
