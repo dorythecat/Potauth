@@ -4,6 +4,7 @@ from typing import Annotated
 import jwt
 import random
 import os
+import base64
 
 from fastapi import Depends, FastAPI, HTTPException, Security, Body, Response, File
 from fastapi.middleware.cors import CORSMiddleware
@@ -223,7 +224,7 @@ def get_image_bytes(image: str) -> bytes:
     img = Image.open(image)
     img_byte_arr = BytesIO()
     img.save(img_byte_arr, format='WEBP')
-    return img_byte_arr.getvalue().hex()
+    return base64.b64encode(img_byte_arr.getvalue())
 
 
 @app.get("/get_images",
@@ -237,22 +238,22 @@ async def get_images(username: str) -> Images:
     while True:
         random_id = random.randint(0, fodder_id - 1)
         if random_id not in images:
-            images.append(f"images/fodder/{random_id}_{random.randint(0, 9)}.webp")
+            images.append(get_image_bytes(f"images/fodder/{random_id}_{random.randint(0, 9)}.webp"))
         if len(images) == 8:
             break
     images.append(f"images/users/{username}.webp")
     random.shuffle(images)
 
     return Images(
-        image0=get_image_bytes(images[0]),
-        image1=get_image_bytes(images[1]),
-        image2=get_image_bytes(images[2]),
-        image3=get_image_bytes(images[3]),
-        image4=get_image_bytes(images[4]),
-        image5=get_image_bytes(images[5]),
-        image6=get_image_bytes(images[6]),
-        image7=get_image_bytes(images[7]),
-        image8=get_image_bytes(images[8]),
+        image0=images[0],
+        image1=images[1],
+        image2=images[2],
+        image3=images[3],
+        image4=images[4],
+        image5=images[5],
+        image6=images[6],
+        image7=images[7],
+        image8=images[8],
     )
 
 
