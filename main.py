@@ -107,6 +107,16 @@ async def add_fodder(image: Annotated[bytes, File(description="The image to send
         f.write(str(fodder_id + 1))
 
 
+@app.put("/get_code")
+async def add_fodder(image: Annotated[bytes, File(description="The image to send.")]):
+    """Gives you the potato code for your potato."""
+    img = Image.open(BytesIO(image))
+    img_byte_arr = BytesIO()
+    img.save(img_byte_arr, format='WEBP')
+    img_byte_arr = img_byte_arr.getvalue()
+    processed = ''.join(img_byte_arr.hex().translate(''.maketrans('abcdef', '192837')).split("0"))
+    return str(int(processed[::-1][:4300]) % 9007199254740991)
+
 @app.get("/testpotato",
          responses = {
              200: { "content": {"image/webp": {}}}
