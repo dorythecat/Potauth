@@ -1,0 +1,43 @@
+body {
+    background-color: #000000;
+    color: #ffffff;
+    font-family: monospace;
+    font-size: 16px;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px #ffffff;
+}
+
+div {
+    margin: 0 10%;
+}
+
+.title {
+    margin-top: 30vh;
+    margin-bottom: 100vh;
+}
+
+.title h1 {
+    font-size: min(10vw, 200px);
+    margin-bottom: 0;
+}
+
+h1 {
+    margin-bottom: 50px;
+}
+
+.info {
+    margin-bottom: 100vh;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 50px 0;
+}
+
+.login {
+    margin-bottom: 30vh;
+}
