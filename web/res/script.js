@@ -7,6 +7,6 @@ document.getElementById("login_button_one").onclick = function() {
         return;
     }
 
-    alert(username);
-    alert(potatoType);
+    const potato_login_container = document.getElementById("potato_login_container");
+    potato_login_container.style.display = "flex";
 }
