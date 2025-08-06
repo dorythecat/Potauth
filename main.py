@@ -1,4 +1,4 @@
-from enum import EnumType
+from enum import Enum
 from typing import Annotated
 
 import jwt
@@ -8,14 +8,17 @@ import os
 from fastapi import Depends, FastAPI, HTTPException, Security, Body, Response, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, JSONResponse
 from pydantic import BaseModel
 from datetime import datetime, timedelta, timezone
 
 from PIL import Image
 from io import BytesIO
+from dotenv import load_dotenv
 
-from starlette.responses import RedirectResponse, JSONResponse
+load_dotenv()
+
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 app = FastAPI(
     title="Potauth API",
@@ -78,7 +81,7 @@ async def get_current_token(credentials: HTTPAuthorizationCredentials = Security
 
 
 
-def get_potato_code(img: bytes) -> int:
+def get_potato_code(img_byte_arr: bytes) -> int:
     """Get the potato code from an image."""
     return int(''.join(img_byte_arr.hex().translate(''.maketrans('abcdef', '192837')).split("0"))[::-1][:4300]) % 9007199254740991
 
@@ -87,7 +90,7 @@ class ErrorMessage(BaseModel):
     message: str
 
 
-class PotatoType(EnumType):
+class PotatoType(str, Enum):
     fried = "fried"
     baked = "baked"
     stuffed = "stuffed"
@@ -103,10 +106,10 @@ class PotatoType(EnumType):
               401: {"model": ErrorMessage},
               404: {"model": ErrorMessage}
           })
-def login(username: Annotated[str, Body()],
-          favourite_potato: Annotated[PotatoType, Body()],
-          potato_code: Annotated[int, Body()],
-          image: Annotated[bytes, File(), Body()]) -> str | JSONResponse:
+def login(username: str,
+          favourite_potato: PotatoType,
+          potato_code: int,
+          image: Annotated[bytes, File(description="Selected image")]) -> str | JSONResponse:
     """Login to the API."""
     if not os.path.exists(DATABASE_PATH):
         return JSONResponse(status_code=401, content={"message": "User does no exist."})
@@ -115,11 +118,14 @@ def login(username: Annotated[str, Body()],
         lines = f.readlines()
         for line in lines:
             line = line.strip().split(":")
+            print(line)
+            print(favourite_potato.value)
+            print(potato_code)
             if line[0] == username:
-                if line[1] == str(favourite_potato) and line[2] == str(potato_code):
+                if line[1] == str(favourite_potato.value) and line[2] == str(potato_code):
                     if not os.path.exists("images/users"):
                         os.mkdir("images/users")
-                    if not os.path.exists(f"images/users/{username}_{potato_code}.webp"):
+                    if not os.path.exists(f"images/users/{username}.webp"):
                         return JSONResponse(status_code=404, content={"message": "User does no exist."})
 
                     # Check image
@@ -132,8 +138,7 @@ def login(username: Annotated[str, Body()],
                         return JSONResponse(status_code=401, content={"message": "Incorrect potato."})
 
                     return create_access_token({"access_token": username})
-                else:
-                    return JSONResponse(status_code=401, content={"message": "Incorrect login data."})
+                return JSONResponse(status_code=401, content={"message": "Incorrect login data."})
         return JSONResponse(status_code=404, content={"message": "User does not exist."})
 
 
