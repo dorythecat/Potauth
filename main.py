@@ -110,7 +110,6 @@ class PotatoType(str, Enum):
           })
 def login(username: str,
           favourite_potato: PotatoType,
-          potato_code: int,
           image: Annotated[bytes, File(description="Selected image")]) -> str | JSONResponse:
     """Login to the API."""
     if not os.path.exists(DATABASE_PATH):
@@ -122,7 +121,7 @@ def login(username: str,
             line = line.strip().split(":")
             if line[0] != username:
                 continue
-            if line[1] != str(favourite_potato.value) or line[2] != str(potato_code):
+            if line[1] != str(favourite_potato.value):
                 return JSONResponse(status_code=401, content={"message": "Incorrect login data."})
             if not os.path.exists("images/users"):
                 os.mkdir("images/users")
@@ -130,13 +129,13 @@ def login(username: str,
                 return JSONResponse(status_code=404, content={"message": "User does not exist."})
 
             # Check image
-            img = Image.open(BytesIO(image))
+            img = Image.open(BytesIO(base64.b64decode(image)))
             img_byte_arr = BytesIO()
             img.save(img_byte_arr, format='WEBP')
             potato_code = get_potato_code(img_byte_arr.getvalue())
 
             if potato_code != int(line[2]):
-                return JSONResponse(status_code=401, content={"message": "Incorrect potato."})
+                return JSONResponse(status_code=401, content={"message": "Incorrect login data."})
 
             return create_access_token({"access_token": username})
     return JSONResponse(status_code=404, content={"message": "User does not exist."})

@@ -1,3 +1,7 @@
+const API_URL ="http://127.0.0.1:8000"
+
+const potato_login_container = document.getElementById("potato_login_container");
+
 document.getElementById("login_button_one").onclick = function() {
     const username = document.getElementById("username_login").value;
     const potatoType = document.getElementById("potato_type_login").value;
@@ -7,9 +11,7 @@ document.getElementById("login_button_one").onclick = function() {
         return;
     }
 
-    const potato_login_container = document.getElementById("potato_login_container");
-
-    const response =  fetch(`http://127.0.0.1:8000/get_images?username=${username}`, {
+    const response =  fetch(`${API_URL}/get_images?username=${username}`, {
         method: "GET",
         headers: {}
     }).catch(err => {
@@ -27,4 +29,21 @@ document.getElementById("login_button_one").onclick = function() {
 
         potato_login_container.style.display = "flex";
     });
+}
+
+for (let potato of potato_login_container.children) {
+    potato.onclick = function() {
+        const username = document.getElementById("username_login").value;
+        const potatoType = document.getElementById("potato_type_login").value;
+
+        const formData = new FormData();
+        formData.append("image", this.src.split(",")[1]);
+
+        console.log(this.src.split(",")[1]);
+        const response = fetch(`${API_URL}/login?username=${username}&favourite_potato=${potatoType}`, {
+            method: "POST",
+            headers: {},
+            body: formData
+        })
+    }
 }
