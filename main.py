@@ -245,7 +245,7 @@ async def get_images(username: str) -> Images:
             images.append(get_image_bytes(f"images/fodder/{random_id}_{random.randint(0, 9)}.webp"))
         if len(images) == 8:
             break
-    images.append(f"images/users/{username}.webp")
+    images.append(get_image_bytes(f"images/users/{username}.webp"))
     random.shuffle(images)
 
     return Images(
