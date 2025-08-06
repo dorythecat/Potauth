@@ -35,12 +35,18 @@
     </div>
     <div class="login">
         <h1>Login</h1>
-        <form id="login_form">
-            <label for="username">Username:
-                <input type="text" name="username" id="username" required>
-            </label>
-            <button type="submit">Login</button>
-        </form>
+        <input type="text" name="username_login" id="username_login" placeholder="Username" required>
+        <label for="potato_type_login">Favourite potato type:
+            <select name="potato_type_login" id="potato_type_login" required>
+                <option value="fried">Fried</option>
+                <option value="baked">Baked</option>
+                <option value="stuffed">Stuffed </option>
+                <option value="salted">Salted</option>
+                <option value="roasted">Roasted</option>
+                <option value="raw">Raw</option>
+            </select>
+        </label>
+        <button id="login_button_one">Login</button>
     </div>
 </body>
 </html>
