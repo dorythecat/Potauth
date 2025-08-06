@@ -1,3 +1,4 @@
+from enum import EnumType
 from typing import Annotated
 
 import jwt
@@ -14,7 +15,7 @@ from datetime import datetime, timedelta, timezone
 from PIL import Image
 from io import BytesIO
 
-from starlette.responses import RedirectResponse
+from starlette.responses import RedirectResponse, JSONResponse
 
 app = FastAPI(
     title="Potauth API",
@@ -44,7 +45,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-DATABASE_PATH = "potauth.db" # TODO
+DATABASE_PATH = "potauth.db"
 
 ALGORITHM = "HS256" # Algorith for JWT to use to encode tokens
 security = HTTPBearer()
@@ -86,16 +87,54 @@ class ErrorMessage(BaseModel):
     message: str
 
 
-@app.get("/login",
-         response_model=None,
-         responses={
-             401: {"model": ErrorMessage},
-             403: {"model": ErrorMessage},
-             404: {"model": ErrorMessage}
-         })
-def login(): # TODO
+class PotatoType(EnumType):
+    fried = "fried"
+    baked = "baked"
+    stuffed = "stuffed"
+    mashed = "mashed"
+    salted = "salted"
+    roasted = "roasted"
+    raw = "raw"
+
+
+@app.post("/login",
+          response_model=str,
+          responses={
+              401: {"model": ErrorMessage},
+              404: {"model": ErrorMessage}
+          })
+def login(username: Annotated[str, Body()],
+          favourite_potato: Annotated[PotatoType, Body()],
+          potato_code: Annotated[int, Body()],
+          image: Annotated[bytes, File(), Body()]) -> str | JSONResponse:
     """Login to the API."""
-    return None
+    if not os.path.exists(DATABASE_PATH):
+        return JSONResponse(status_code=401, content={"message": "User does no exist."})
+
+    with open(DATABASE_PATH, "r") as f:
+        lines = f.readlines()
+        for line in lines:
+            line = line.strip().split(":")
+            if line[0] == username:
+                if line[1] == str(favourite_potato) and line[2] == str(potato_code):
+                    if not os.path.exists("images/users"):
+                        os.mkdir("images/users")
+                    if not os.path.exists(f"images/users/{username}_{potato_code}.webp"):
+                        return JSONResponse(status_code=404, content={"message": "User does no exist."})
+
+                    # Check image
+                    img = Image.open(BytesIO(image))
+                    img_byte_arr = BytesIO()
+                    img.save(img_byte_arr, format='WEBP')
+                    potato_code = get_potato_code(img_byte_arr.getvalue())
+
+                    if potato_code != int(line[2]):
+                        return JSONResponse(status_code=401, content={"message": "Incorrect potato."})
+
+                    return create_access_token({"access_token": username})
+                else:
+                    return JSONResponse(status_code=401, content={"message": "Incorrect login data."})
+        return JSONResponse(status_code=404, content={"message": "User does not exist."})
 
 
 @app.put("/add_fodder")
@@ -140,7 +179,7 @@ async def get_images(token: str = Depends(get_current_token)) -> Images:
 
 
 @app.put("/get_code")
-async def get_code(image: Annotated[bytes, File(description="The image to send.")]):
+async def get_code(image: Annotated[bytes, File(description="The image to get the code for.")]):
     """Gives you the potato code for your potato."""
     img = Image.open(BytesIO(image))
     img_byte_arr = BytesIO()
