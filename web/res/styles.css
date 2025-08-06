@@ -97,3 +97,21 @@ ul {
     background-color: #ffffff;
     color: #000000;
 }
+
+.potato_login_container {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0 4px;
+    justify-content: center;
+}
+
+.potato_login_container img {
+    margin: 4px;
+    width: 30%;
+    object-fit: cover;
+    border-radius: 5px;
+    box-shadow: 0 0 10px #ffffff;
+    cursor: pointer;
+    transition: 0.2s;
+}
+}
