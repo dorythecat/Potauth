@@ -95,15 +95,15 @@ async def send_image(image: Annotated[bytes, File(description="The image to send
 
 @app.get("/testpotato",
          responses = {
-             200: { "content": {"image/png": {}}}
+             200: { "content": {"image/webp": {}}}
          },
          response_class=Response
 )
 async def get_image():
     img = Image.open('testpotato.png', mode='r')
     img_byte_arr = BytesIO()
-    img.save(img_byte_arr, format='PNG')
+    img.save(img_byte_arr, format='WEBP')
     img_byte_arr = img_byte_arr.getvalue()
 
     # media_type here sets the media type of the actual response sent to the client.
-    return Response(content=img_byte_arr, media_type="image/png")
+    return Response(content=img_byte_arr, media_type="image/webp")
