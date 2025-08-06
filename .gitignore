@@ -1,3 +1,5 @@
 .idea/
 images/fodder/*
 __pychache__/
+.env
+*.db
