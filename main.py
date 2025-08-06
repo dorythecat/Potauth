@@ -172,6 +172,8 @@ def register(username: str,
         with open(DATABASE_PATH, "a+") as f:
             f.write(f"\n{username}:{favourite_potato.value}:{potato_code}")
             img = Image.open(BytesIO(image))
+            start_corner = random.randint(0, img.size[0] - 256), random.randint(0, img.size[1] - 256)
+            img = img.crop((start_corner[0], start_corner[1], start_corner[0] + 256, start_corner[1] + 256))
             img.save(f"images/users/{username}.webp")
             return RegisterResponse(access_token=create_access_token({"access_token": username}),
                                     potato_code=potato_code)
@@ -179,6 +181,8 @@ def register(username: str,
         with open(DATABASE_PATH, "w+") as f:
             f.write(f"{username}:{favourite_potato.value}:{potato_code}")
             img = Image.open(BytesIO(image))
+            start_corner = random.randint(0, img.size[0] - 256), random.randint(0, img.size[1] - 256)
+            img = img.crop((start_corner[0], start_corner[1], start_corner[0] + 256, start_corner[1] + 256))
             img.save(f"images/users/{username}.webp")
             return RegisterResponse(access_token=create_access_token({"access_token": username}),
                                     potato_code=potato_code)
