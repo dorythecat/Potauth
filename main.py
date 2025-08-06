@@ -108,7 +108,7 @@ async def add_fodder(image: Annotated[bytes, File(description="The image to send
 
 
 @app.put("/get_code")
-async def add_fodder(image: Annotated[bytes, File(description="The image to send.")]):
+async def get_code(image: Annotated[bytes, File(description="The image to send.")]):
     """Gives you the potato code for your potato."""
     img = Image.open(BytesIO(image))
     img_byte_arr = BytesIO()
