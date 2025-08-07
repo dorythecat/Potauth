@@ -66,11 +66,16 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-async def get_current_token(credentials: HTTPAuthorizationCredentials = Security(security)) -> str | HTTPException:
+
+def get_current_token(credentials: HTTPAuthorizationCredentials = Security(security)) -> str | HTTPException:
     """Get and validate the Authorization header token."""
     token = credentials.credentials if credentials else None
     if not token:
-        return None
+        return HTTPException(
+            status_code=401,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     try:
         data = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return data['access_token']
@@ -86,9 +91,7 @@ async def get_current_token(credentials: HTTPAuthorizationCredentials = Security
 def get_potato_code(img: Image) -> str:
     """Get the potato code from an image."""
     # Literally just an image hash lol
-    img = img.resize((16, 16))
-    img = img.convert("L")
-    pixel_data = list(img.getdata())
+    pixel_data = list(img.resize((16, 16)).convert("L").getdata())
     avg_pixel = sum(pixel_data)/len(pixel_data)
     bits = "".join(['1' if (px >= avg_pixel) else '0' for px in pixel_data])
     hex_representation = str(hex(int(bits, 2)))[2:][::-1].upper()
@@ -120,8 +123,8 @@ class PotatoType(str, Enum):
 @app.post("/login",
           response_model=str,
           responses={
-              401: {"model": ErrorMessage},
-              404: {"model": ErrorMessage}
+              401: { "model": ErrorMessage },
+              404: { "model": ErrorMessage }
           })
 async def login(username: str,
                 favourite_potato: PotatoType,
@@ -154,8 +157,8 @@ async def login(username: str,
 @app.post("/register",
           response_model=str,
           responses={
-              401: {"model": ErrorMessage},
-              404: {"model": ErrorMessage}
+              401: { "model": ErrorMessage },
+              404: { "model": ErrorMessage }
           })
 async def register(username: str,
                    favourite_potato: PotatoType,
@@ -192,7 +195,7 @@ async def delete_user(token: str = Depends(get_current_token)) -> None:
 
 
 @app.post("/add_fodder")
-async def add_fodder(image: Annotated[bytes, File(description="The image to send.")]):
+async def add_fodder(image: Annotated[bytes, File(description="The image to send.")]) -> None:
     """Send a potato to the API, that will be added to the fodder list."""
     # Check the max fodder ID
     if not os.path.exists("images/fodder/fodder_id"):
