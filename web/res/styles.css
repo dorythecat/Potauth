@@ -8,6 +8,17 @@ body {
     text-align: center;
     text-transform: uppercase;
     text-shadow: 0 0 10px #ffffff;
+    user-select: none;
+}
+
+a {
+    color: #ffffff;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+a:hover {
+    color: #000000;
 }
 
 .title {
