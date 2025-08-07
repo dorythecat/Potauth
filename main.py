@@ -141,22 +141,17 @@ def login(username: str,
     return JSONResponse(status_code=404, content={"message": "User does not exist."})
 
 
-class RegisterResponse(BaseModel):
-    access_token: str
-    potato_code: int
-
-
 @app.post("/register",
-          response_model=RegisterResponse,
+          response_model=str,
           responses={
               401: {"model": ErrorMessage},
               404: {"model": ErrorMessage}
           })
 def register(username: str,
              favourite_potato: PotatoType,
-             image: Annotated[bytes, File(description="Selected image")]) -> RegisterResponse | JSONResponse:
+             image: Annotated[bytes, File(description="Selected image")]) -> str | JSONResponse:
     """Register a new user."""
-    img = Image.open(BytesIO(image))
+    img = Image.open(BytesIO(base64.b64decode(image)))
     img_byte_arr = BytesIO()
     img.save(img_byte_arr, format='WEBP')
     potato_code = get_potato_code(img_byte_arr.getvalue())
@@ -174,8 +169,7 @@ def register(username: str,
             start_corner = random.randint(0, img.size[0] - 256), random.randint(0, img.size[1] - 256)
             img = img.crop((start_corner[0], start_corner[1], start_corner[0] + 256, start_corner[1] + 256))
             img.save(f"images/users/{username}.webp")
-            return RegisterResponse(access_token=create_access_token({"access_token": username}),
-                                    potato_code=potato_code)
+            return create_access_token({"access_token": username})
     else:
         with open(DATABASE_PATH, "w+") as f:
             f.write(f"{username}:{favourite_potato.value}:{potato_code}")
@@ -183,8 +177,7 @@ def register(username: str,
             start_corner = random.randint(0, img.size[0] - 256), random.randint(0, img.size[1] - 256)
             img = img.crop((start_corner[0], start_corner[1], start_corner[0] + 256, start_corner[1] + 256))
             img.save(f"images/users/{username}.webp")
-            return RegisterResponse(access_token=create_access_token({"access_token": username}),
-                                    potato_code=potato_code)
+            return create_access_token({"access_token": username})
 
 
 @app.put("/add_fodder")
