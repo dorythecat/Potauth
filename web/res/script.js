@@ -51,8 +51,8 @@ document.getElementById("login_button").onclick = function() {
                 });
             }
         }
-
         potato_login_container.style.display = "flex";
+        $.scrollify.update(); // Make sure the spacing is right
     });
 }
 
@@ -157,3 +157,16 @@ potato_upload_file.onchange = function() {
         })
     }
 }
+
+$(document).ready(function() {
+    $.scrollify({
+        section: ".section",
+        sectionName: ".section",
+        easing: "jswing",
+        scrollSpeed: 400,
+        overflowScroll: true,
+        setHeights: true,
+        scrollbars: false,
+        touchScroll: false
+    });
+});
