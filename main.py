@@ -285,3 +285,16 @@ async def get_posts(username: str) -> list[bytes]:
         img.save(img_byte_arr, format='WEBP')
         posts.append(base64.b64encode(img_byte_arr.getvalue()))
     return posts
+
+
+@app.post("/post")
+async def post(token: Annotated[str, Depends(get_current_token)],
+              image: Annotated[bytes, File(description="The image to send.")]) -> None:
+    """Post a potato to the API."""
+    if not os.path.exists("images/posts"):
+        os.mkdir("images/posts")
+    img = Image.open(BytesIO(image))
+    potato_code = get_potato_code(img)
+    img.save(f"images/posts/{potato_code}.webp")
+    with open(POTATO_DB, "a+") as f:
+        f.write(f"\n{token}:{potato_code}")
