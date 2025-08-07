@@ -20,20 +20,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js" integrity="sha512-0QbL0ph8Tc8g5bLhfVzSqxe9GERORsKhIn1IrpxDAgUsbBGz/V7iSav2zzW325XGd1OMLdL4UiqRJj702IeqnQ==" crossorigin="anonymous"></script>
 
     <script>
-      if (window.innerWidth > 800) {
-          $(document).ready(function() {
-              $.scrollify({
-                  section: ".section",
-                  sectionName: ".section",
-                  easing: "jswing",
-                  scrollSpeed: 400,
-                  overflowScroll: true,
-                  setHeights: false,
-                  scrollbars: false,
-                  touchScroll: false
-              });
-          });
-      }
+        $(document).ready(function() {
+            $.scrollify({
+                section: ".section",
+                sectionName: ".section",
+                easing: "jswing",
+                scrollSpeed: 400,
+                overflowScroll: false,
+                setHeights: true,
+                scrollbars: false,
+                touchScroll: false
+            });
+        });
     </script>
 </head>
 
@@ -122,6 +120,7 @@
         <label for="potato_upload_file">Upload a new potato:
             <input type="file" name="potato_upload_file" id="potato_upload_file" accept="image/*" required>
         </label>
+        <p>You cannot delete potatoes. Every potato is unique and awesome. You can't take that from them.</p>
     </div>
 </body>
 <footer>

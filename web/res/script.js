@@ -127,7 +127,7 @@ fetch(`${API_URL}/potatoes/${getCookie("username")}`, {
     headers: {}
 }).catch(err => console.log(err)).then(res => res.json()).then(res => {
     for (const potato of res) {
-        your_potatoes_container.innerHTML += `<img src="data:image/webp;base64,${potato}" alt="potato" class="potato">`;
+        your_potatoes_container.innerHTML += `<img src="data:image/webp;base64,${potato}" alt="Potato">`;
     }
 })
 

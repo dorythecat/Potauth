@@ -154,6 +154,12 @@ footer {
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #000000;
+    color: #ffffff;
+    text-shadow: 0 0 10px #ffffff;
 }
 
 footer p {
@@ -180,6 +186,15 @@ footer p {
     box-shadow: 0 0 10px #ffffff;
     cursor: pointer;
     transition: 0.2s;
+}
+
+#your_potatoes_container img:hover {
+    opacity: 0.7;
+    background-color: #111;
+    box-shadow: 0 0 20px #ffffff;
+    border: 2px solid #ffffff;
+    border-radius: 10px;
+    max-width: 300px;
 }
 
 @media screen and (max-width: 800px) {
