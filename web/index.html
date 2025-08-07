@@ -33,7 +33,8 @@
             log in, though!
         </p>
     </div>
-    <div class="login" id="login">
+    <div id="login_and_register">
+        <div id="login">
         <h1>Login</h1>
         <input type="text" name="username_login" id="username_login" placeholder="Username" required>
         <label for="potato_type_login">Favourite potato type:
@@ -58,6 +59,24 @@
             <img src="" alt="Potato">
             <img src="" alt="Potato">
             <img src="" alt="Potato">
+        </div>
+        </div>
+        <div id="register">
+            <h1>Register</h1>
+            <input type="text" name="username_register" id="username_register" placeholder="Username" required>
+            <label for="potato_type_register">Favourite potato type:
+                <select name="potato_type_register" id="potato_type_register" required>
+                    <option value="fried">Fried</option>
+                    <option value="baked">Baked</option>
+                    <option value="stuffed">Stuffed </option>
+                    <option value="salted">Salted</option>
+                    <option value="roasted">Roasted</option>
+                    <option value="raw">Raw</option>
+                    <option value="mashed">Mashed</option>
+                </select>
+            </label>
+            <button id="register_button">Register</button>
+            <input type="file" name="potato_register" id="potato_register" accept="image/*" style="display: none;" required>
         </div>
     </div>
     <div id="content">

@@ -10,10 +10,6 @@ body {
     text-shadow: 0 0 10px #ffffff;
 }
 
-div {
-    margin: 0 10%;
-}
-
 .title {
     margin-top: 30vh;
     margin-bottom: 100vh;
@@ -38,11 +34,16 @@ ul {
     margin: 50px 0;
 }
 
-.login {
+#login_and_register {
     margin-bottom: 30vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 0 4px;
 }
 
-.login input {
+#login_and_register input {
     font-size: 16px;
     margin: 20px;
     padding: 10px;
@@ -57,11 +58,11 @@ ul {
     text-shadow: 0 0 10px #ffffff;
 }
 
-.login input:focus {
+#login_and_register input:focus {
     outline: none;
 }
 
-.login select {
+#login_and_register select {
     width: 95%;
     margin: 20px;
     padding: 10px;
@@ -75,7 +76,7 @@ ul {
     text-shadow: 0 0 10px #ffffff;
 }
 
-.login button {
+#login_and_register button {
     margin: 20px;
     padding: 10px;
     text-align: center;
@@ -93,9 +94,17 @@ ul {
     font-size: 16px;
 }
 
-.login button:hover {
+#login_and_register button:hover {
     background-color: #ffffff;
     color: #000000;
+}
+
+#login {
+    width: 50%;
+}
+
+#register {
+    width: 50%;
 }
 
 .potato_login_container {
@@ -127,4 +136,16 @@ ul {
 #content {
     display: none;
     margin-bottom: 40vh;
+}
+
+@media screen and (max-width: 800px) {
+    #login_and_register {
+        flex-direction: column;
+    }
+    #login {
+        width: 100%;
+    }
+    #register {
+        width: 100%;
+    }
 }
