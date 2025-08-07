@@ -85,13 +85,22 @@ async def get_current_token(credentials: HTTPAuthorizationCredentials = Security
 
 def get_potato_code(img: Image) -> str:
     """Get the potato code from an image."""
-    img = img.resize((10, 10))
+    # Literally just an image hash lol
+    img = img.resize((16, 16))
     img = img.convert("L")
     pixel_data = list(img.getdata())
     avg_pixel = sum(pixel_data)/len(pixel_data)
     bits = "".join(['1' if (px >= avg_pixel) else '0' for px in pixel_data])
     hex_representation = str(hex(int(bits, 2)))[2:][::-1].upper()
     return hex_representation
+
+
+def random_crop(img: Image, size: tuple[int, int] = (256, 256)) -> Image:
+    """Randomly crop an image."""
+    if img.size[0] < size[0] or img.size[1] < size[1]:
+        return img.resize((size[0], size[1])) # If the image is undersized, just return a sized version of it
+    start_corner = random.randint(0, img.size[0] - size[0]), random.randint(0, img.size[1] - size[1])
+    return img.crop((start_corner[0], start_corner[1], start_corner[0] + size[0], start_corner[1] + size[1]))
 
 
 class ErrorMessage(BaseModel):
@@ -135,9 +144,7 @@ async def login(username: str,
                 return JSONResponse(status_code=404, content={"message": "User does not exist."})
 
             # Check image
-            potato_code = get_potato_code(Image.open(BytesIO(base64.b64decode(image))))
-
-            if potato_code != line[2]:
+            if get_potato_code(Image.open(BytesIO(base64.b64decode(image)))) != line[2]:
                 return JSONResponse(status_code=401, content={"message": "Incorrect login data."})
 
             return create_access_token({"access_token": username})
@@ -162,8 +169,7 @@ async def register(username: str,
                 if line[0] == username:
                     return JSONResponse(status_code=401, content={"message": "User already exists."})
     img = Image.open(BytesIO(base64.b64decode(image)))
-    start_corner = random.randint(0, img.size[0] - 256), random.randint(0, img.size[1] - 256)
-    img = img.crop((start_corner[0], start_corner[1], start_corner[0] + 256, start_corner[1] + 256))
+    img = random_crop(img)
     potato_code = get_potato_code(img)
     with open(DATABASE_PATH, "a+") as f:
         f.write(f"\n{username}:{favourite_potato.value}:{potato_code}")
@@ -186,11 +192,10 @@ async def add_fodder(image: Annotated[bytes, File(description="The image to send
     img = Image.open(BytesIO(image))
     for i in range(10):
         # Randomly crop 10 times and save the cropped versions
-        start_corner = random.randint(0, img.size[0] - 256), random.randint(0, img.size[1] - 256)
-        cropped_img = img.crop((start_corner[0], start_corner[1], start_corner[0] + 256, start_corner[1] + 256))
-        cropped_img.save(f"images/fodder/{fodder_id}_{i}" + ".webp")
+        img = random_crop(img)
+        img.save(f"images/fodder/{fodder_id}_{i}" + ".webp")
 
-    with open("images/fodder/fodder_id", "w+") as f:
+    with open("images/fodder/fodder_id", "w") as f:
         f.write(str(fodder_id + 1))
 
 
