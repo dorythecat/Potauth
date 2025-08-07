@@ -1,5 +1,4 @@
 fastapi[standard]~=0.116.1
-jwt~=1.4.0
 pydantic~=2.11.7
 PyJWT~=2.10.1
 pillow~=11.3.0
