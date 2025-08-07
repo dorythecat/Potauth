@@ -293,7 +293,7 @@ async def post(token: Annotated[str, Depends(get_current_token)],
     """Post a potato to the API."""
     if not os.path.exists("images/posts"):
         os.mkdir("images/posts")
-    img = Image.open(BytesIO(image))
+    img = Image.open(BytesIO(base64.b64decode(image)))
     potato_code = get_potato_code(img)
     img.save(f"images/posts/{potato_code}.webp")
     with open(POTATO_DB, "a+") as f:

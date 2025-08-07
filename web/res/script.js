@@ -6,6 +6,7 @@ const login_and_register = document.getElementById("login_and_register");
 const content = document.getElementById("content");
 const your_potatoes = document.getElementById("your_potatoes");
 const your_potatoes_container = document.getElementById("your_potatoes_container");
+const potato_upload_file = document.getElementById("potato_upload_file");
 const logout = document.getElementById("logout");
 
 document.getElementById("login_button").onclick = function() {
@@ -42,9 +43,9 @@ document.getElementById("login_button").onclick = function() {
                         return;
                     }
                     r.json().then(r => {
-                        document.cookie = "username=" + username;
-                        document.cookie = "potatoType=" + potatoType;
-                        document.cookie = "token=" + r;
+                        document.cookie = `username=${username}; Max-Age=1800;`;
+                        document.cookie = `potatoType=${potatoType}; Max-Age=1800;`;
+                        document.cookie = `token=${r}; Max-Age=1800;`;
                         window.location.reload();
                     });
                 });
@@ -122,10 +123,34 @@ if (document.cookie.includes("token=")) {
 
 // Potatoes
 fetch(`${API_URL}/potatoes/${getCookie("username")}`, {
-    "method": "GET",
-    "headers": {}
+    method: "GET",
+    headers: {}
 }).catch(err => console.log(err)).then(res => res.json()).then(res => {
     for (const potato of res) {
         your_potatoes_container.innerHTML += `<img src="data:image/webp;base64,${potato}" alt="potato" class="potato">`;
     }
 })
+
+potato_upload_file.onchange = function() {
+    const file = this.files[0];
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = function() {
+        const formData = new FormData();
+        formData.append("image", reader.result.split(",")[1]);
+
+        fetch(`${API_URL}/post`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${getCookie("token")}`
+            },
+            body: formData
+        }).catch(err => console.log(err)).then(r => {
+            if (r.status !== 200) {
+                alert("Upload failed!");
+                return;
+            }
+            window.location.reload();
+        })
+    }
+}
