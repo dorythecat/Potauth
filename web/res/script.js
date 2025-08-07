@@ -125,11 +125,14 @@ if (document.cookie.includes("token=")) {
 fetch(`${API_URL}/potatoes/${getCookie("username")}`, {
     method: "GET",
     headers: {}
-}).catch(err => console.log(err)).then(res => res.json()).then(res => {
-    for (const potato of res) {
-        your_potatoes_container.innerHTML += `<img src="data:image/webp;base64,${potato}" alt="Potato">`;
-    }
-})
+}).catch(err => console.log(err)).then(res => {
+    if (res.status !== 200) return;
+    res.json().then(res => {
+        for (const potato of res) {
+            your_potatoes_container.innerHTML += `<img src="data:image/webp;base64,${potato}" alt="Potato">`;
+        }
+    });
+});
 
 potato_upload_file.onchange = function() {
     const file = this.files[0];
