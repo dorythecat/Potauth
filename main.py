@@ -177,6 +177,20 @@ async def register(username: str,
     return create_access_token({"access_token": username})
 
 
+@app.delete("/delete_user")
+async def delete_user(token: str = Depends(get_current_token)) -> None:
+    """Delete a user."""
+    if not os.path.exists(DATABASE_PATH):
+        return # We don't need to do nothing
+    with open(DATABASE_PATH, "r") as f:
+        lines = f.readlines()
+    with open(DATABASE_PATH, "w") as f:
+        for line in lines:
+            if line.strip().split(":")[0] != token:
+                f.write(line)
+    os.remove(f"images/users/{token}.webp")
+
+
 @app.put("/add_fodder")
 async def add_fodder(image: Annotated[bytes, File(description="The image to send.")]):
     """Send a potato to the API, that will be added to the fodder list."""
