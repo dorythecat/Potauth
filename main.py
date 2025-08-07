@@ -50,7 +50,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-DATABASE_PATH = "potauth.db"
+USERS_DB = "potauth.db" # User database
+POST_DB = "posts.db" # Posts database
 
 ALGORITHM = "HS256" # Algorith for JWT to use to encode tokens
 security = HTTPBearer()
@@ -130,10 +131,10 @@ async def login(username: str,
                 favourite_potato: PotatoType,
                 image: Annotated[bytes, File(description="Selected image")]) -> str | JSONResponse:
     """Login to the API."""
-    if not os.path.exists(DATABASE_PATH):
+    if not os.path.exists(USERS_DB):
         return JSONResponse(status_code=401, content={"message": "User does no exist."})
 
-    with open(DATABASE_PATH, "r") as f:
+    with open(USERS_DB, "r") as f:
         lines = f.readlines()
         for line in lines:
             line = line.strip().split(":")
@@ -164,8 +165,8 @@ async def register(username: str,
                    favourite_potato: PotatoType,
                    image: Annotated[bytes, File(description="Selected image")]) -> str | JSONResponse:
     """Register a new user."""
-    if os.path.exists(DATABASE_PATH):
-        with open(DATABASE_PATH, "r") as f:
+    if os.path.exists(USERS_DB):
+        with open(USERS_DB, "r") as f:
             lines = f.readlines()
             for line in lines:
                 line = line.strip().split(":")
@@ -174,7 +175,7 @@ async def register(username: str,
     img = Image.open(BytesIO(base64.b64decode(image)))
     img = random_crop(img)
     potato_code = get_potato_code(img)
-    with open(DATABASE_PATH, "a+") as f:
+    with open(USERS_DB, "a+") as f:
         f.write(f"\n{username}:{favourite_potato.value}:{potato_code}")
     img.save(f"images/users/{username}.webp")
     return create_access_token({"access_token": username})
@@ -183,11 +184,11 @@ async def register(username: str,
 @app.delete("/delete_user")
 async def delete_user(token: str = Depends(get_current_token)) -> None:
     """Delete a user."""
-    if not os.path.exists(DATABASE_PATH):
+    if not os.path.exists(USERS_DB):
         return # We don't need to do nothing
-    with open(DATABASE_PATH, "r") as f:
+    with open(USERS_DB, "r") as f:
         lines = f.readlines()
-    with open(DATABASE_PATH, "w") as f:
+    with open(USERS_DB, "w") as f:
         for line in lines:
             if line.strip().split(":")[0] != token:
                 f.write(line)
@@ -263,4 +264,25 @@ async def get_images(username: str) -> Images:
         image6=images[6],
         image7=images[7],
         image8=images[8],
+    )
+
+
+class Post(BaseModel):
+    title: str
+    content: str
+
+
+@app.get("/posts/{username}")
+async def get_posts(username: str) -> Post:
+    """Get a list of posts."""
+    if not os.path.exists(POST_DB):
+        return []
+    with open(POST_DB, "r") as f:
+        lines = f.readlines()
+    posts = []
+    for line in lines:
+        line = line.strip().split(":")
+    return Post(
+        title=line[0],
+        content=line[1]
     )
