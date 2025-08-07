@@ -273,7 +273,7 @@ class Post(BaseModel):
 
 
 @app.get("/posts/{username}")
-async def get_posts(username: str) -> Post:
+async def get_posts(username: str) -> list[Post]:
     """Get a list of posts."""
     if not os.path.exists(POST_DB):
         return []
@@ -282,7 +282,7 @@ async def get_posts(username: str) -> Post:
     posts = []
     for line in lines:
         line = line.strip().split(":")
-    return Post(
-        title=line[0],
-        content=line[1]
-    )
+        if line[0] != username:
+            continue
+        posts.append(Post(title=line[1], content=line[2]))
+    return posts
