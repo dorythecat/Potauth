@@ -191,7 +191,7 @@ async def delete_user(token: str = Depends(get_current_token)) -> None:
     os.remove(f"images/users/{token}.webp")
 
 
-@app.put("/add_fodder")
+@app.post("/add_fodder")
 async def add_fodder(image: Annotated[bytes, File(description="The image to send.")]):
     """Send a potato to the API, that will be added to the fodder list."""
     # Check the max fodder ID
@@ -261,27 +261,3 @@ async def get_images(username: str) -> Images:
         image7=images[7],
         image8=images[8],
     )
-
-
-@app.put("/get_code")
-async def get_code(image: Annotated[bytes, File(description="The image to get the code for.")]):
-    """Gives you the potato code for your potato."""
-    img = Image.open(BytesIO(image))
-    img_byte_arr = BytesIO()
-    img.save(img_byte_arr, format='WEBP')
-    return get_potato_code(img_byte_arr.getvalue())
-
-@app.get("/testpotato",
-         responses = {
-             200: { "content": {"image/webp": {}}}
-         },
-         response_class=Response
-)
-async def get_image():
-    img = Image.open('testpotato.png', mode='r')
-    img_byte_arr = BytesIO()
-    img.save(img_byte_arr, format='WEBP')
-    img_byte_arr = img_byte_arr.getvalue()
-
-    # media_type here sets the media type of the actual response sent to the client.
-    return Response(content=img_byte_arr, media_type="image/webp")
