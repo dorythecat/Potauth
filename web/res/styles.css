@@ -9,16 +9,7 @@ body {
     text-transform: uppercase;
     text-shadow: 0 0 10px #ffffff;
     user-select: none;
-}
-
-a {
-    color: #ffffff;
-    text-decoration: none;
-    transition: 0.2s;
-}
-
-a:hover {
-    color: #000000;
+    scroll-behavior: smooth;
 }
 
 .title {
@@ -150,10 +141,29 @@ ul {
 }
 
 #logout {
-    float: right;
-    margin: 20px;
     display: none;
+}
+
+a {
+    color: #ffffff;
+    text-decoration: none;
+    transition: 0.2s;
     cursor: pointer;
+}
+
+a:hover {
+    color: #000000;
+}
+
+footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+footer p {
+    margin: 20px 10%;
 }
 
 @media screen and (max-width: 800px) {
