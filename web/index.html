@@ -21,16 +21,17 @@
     <script>
       if (window.innerWidth > 800) {
           $(document).ready(function() {
-            $.scrollify({
-              section: ".section",
-              sectionName: ".section",
-              easing: "jswing",
-              scrollSpeed: 400,
-              overflowScroll: true,
-              setHeights: false,
-              scrollbars: false,
-              touchScroll: false
-            });
+              $.scrollify({
+                  section: ".section",
+                  sectionName: ".section",
+                  interstitialSection: ".footer",
+                  easing: "jswing",
+                  scrollSpeed: 400,
+                  overflowScroll: true,
+                  setHeights: false,
+                  scrollbars: false,
+                  touchScroll: false
+              });
           });
       }
     </script>
@@ -114,8 +115,24 @@
             and we don't shame, and will make sure you feel as welcome as in the corner of a moisty room!
         </p>
     </div>
+    <div class="section" id="your_potatoes">
+        <h1>Your (awesome) potatoes</h1>
+        <p>Here's your beautiful potato collection:</p>
+        <div id="your_potatoes_container">
+            <img src="../images/fodder/0_0.webp" alt="Potato">
+            <img src="../images/fodder/0_1.webp" alt="Potato">
+            <img src="../images/fodder/0_2.webp" alt="Potato">
+            <img src="../images/fodder/0_3.webp" alt="Potato">
+            <img src="../images/fodder/0_4.webp" alt="Potato">
+            <img src="../images/fodder/0_5.webp" alt="Potato">
+            <img src="../images/fodder/0_6.webp" alt="Potato">
+            <img src="../images/fodder/0_7.webp" alt="Potato">
+            <img src="../images/fodder/0_8.webp" alt="Potato">
+            <img src="../images/fodder/0_9.webp" alt="Potato">
+        </div>
+    </div>
 </body>
-<footer>
+<footer class="footer">
     <p>Made by <a href="https://github.com/dorythecat">Dory</a>, for <a href="https://authly.hackclub.com">Authly</a></p>
     <p><a href="https://github.com/dorythecat/Potauth">Source Code</a> | <a href="https://github.com/dorythecat/potauth/issues">Report a bug</a></p>
     <p><a id="logout">Logout</a></p>

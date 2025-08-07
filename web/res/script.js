@@ -4,6 +4,8 @@ const potato_login_container = document.getElementById("potato_login_container")
 const info = document.getElementById("info");
 const login_and_register = document.getElementById("login_and_register");
 const content = document.getElementById("content");
+const your_potatoes = document.getElementById("your_potatoes");
+const your_potatoes_container = document.getElementById("your_potatoes_container");
 const logout = document.getElementById("logout");
 
 document.getElementById("login_button").onclick = function() {
@@ -111,8 +113,8 @@ if (document.cookie.includes("token=")) {
     // We use remove so that it doesn't mess with scrollify
     info.remove();
     login_and_register.remove();
-    content.style.display = "block";
     logout.style.display = "block";
 } else {
     content.remove();
+    your_potatoes.remove();
 }
