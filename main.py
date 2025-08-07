@@ -290,7 +290,7 @@ async def get_posts(username: str) -> list[bytes]:
 @app.post("/post")
 async def post(token: Annotated[str, Depends(get_current_token)],
               image: Annotated[bytes, File(description="The image to send.")]) -> None:
-    """Post a potato to the API."""
+    """Post a potato to your gallery."""
     if not os.path.exists("images/posts"):
         os.mkdir("images/posts")
     img = Image.open(BytesIO(base64.b64decode(image)))
@@ -298,3 +298,20 @@ async def post(token: Annotated[str, Depends(get_current_token)],
     img.save(f"images/posts/{potato_code}.webp")
     with open(POTATO_DB, "a+") as f:
         f.write(f"\n{token}:{potato_code}")
+
+
+@app.delete("/delete_post")
+async def del_post(token: Annotated[str, Depends(get_current_token)],
+                   image: Annotated[bytes, File(description="The image to send.")]) -> None:
+    """Delete a potato from your gallery."""
+    if not os.path.exists("images/posts"):
+        return
+    potato_code = get_potato_code(Image.open(BytesIO(base64.b64decode(image))))
+    os.remove(f"images/posts/{potato_code}.webp")
+    with open(POTATO_DB, "r") as f:
+        lines = f.readlines()
+    with open(POTATO_DB, "w") as f:
+        for line in lines:
+            if line.strip().split(":")[1] == potato_code:
+                continue
+            f.write(line)
