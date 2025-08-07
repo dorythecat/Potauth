@@ -260,8 +260,10 @@ def get_image_bytes(image: str) -> bytes:
 @app.get("/get_images",
          response_model=Images,
          tags=["Utility"])
-async def get_images(username: str) -> Images:
+async def get_images(username: str) -> Images | None:
     """Get a list of images, eight fodder, one the user image."""
+    if not os.path.exists("images/fodder"):
+        return None
     with open("images/fodder/fodder_id", "r") as f:
         fodder_id = int(f.read().strip())
 
