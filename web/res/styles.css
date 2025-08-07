@@ -12,22 +12,26 @@ body {
     scroll-behavior: smooth;
 }
 
-.title {
+.section {
     margin-top: 30vh;
     margin-bottom: 100vh;
+    padding-top: 30vh;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.title h1 {
+#title {
+    padding-top: 0;
+}
+
+#title h1 {
     font-size: min(10vw, 200px);
     margin-bottom: 0;
 }
 
 h1 {
     margin-bottom: 50px;
-}
-
-.info {
-    margin-bottom: 100vh;
 }
 
 ul {
@@ -37,7 +41,6 @@ ul {
 }
 
 #login_and_register {
-    margin-bottom: 30vh;
     display: flex;
     justify-content: center;
     align-items: center;

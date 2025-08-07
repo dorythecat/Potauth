@@ -12,14 +12,34 @@
 
     <link rel="stylesheet" type="text/css" href="res/styles.css">
     <script type="text/javascript" src="res/script.js" async></script>
+
+    <!-- Scrollify -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/scrollify/1.0.21/jquery.scrollify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js" integrity="sha512-0QbL0ph8Tc8g5bLhfVzSqxe9GERORsKhIn1IrpxDAgUsbBGz/V7iSav2zzW325XGd1OMLdL4UiqRJj702IeqnQ==" crossorigin="anonymous"></script>
+
+    <script>
+      $(document).ready(function() {
+        $.scrollify({
+          section: ".section",
+          sectionName: ".section",
+          easing: "jswing",
+          scrollSpeed: 400,
+          overflowScroll: true,
+          setHeights: false,
+          scrollbars: false,
+          touchScroll: true
+        });
+      });
+    </script>
 </head>
 
 <body>
-    <div class="title">
+    <div class="section" id="title">
         <h1>Potauth</h1>
         <p>The potato-based authentication system</p>
     </div>
-    <div class="info">
+    <div class="section" id="info">
         <h1>How does it work?</h1>
         <p>Potauth uses only potatoes to identify you. To make this possible, the login process has three steps:</p>
         <ul>
@@ -33,7 +53,7 @@
             log in, though!
         </p>
     </div>
-    <div id="login_and_register">
+    <div class="section" id="login_and_register">
         <div id="login">
         <h1>Login</h1>
         <input type="text" name="username_login" id="username_login" placeholder="Username" required>
@@ -79,7 +99,7 @@
             <input type="file" name="potato_register_file" id="potato_register_file" accept="image/*" style="display: none;" required>
         </div>
     </div>
-    <div id="content">
+    <div class="section"  id="content">
         <h1>Welcome to the Potatoverse!</h1>
         <p>
             You have entered a new and unknown realm: The Potatoverse. Here, EVERYTHING IS POTATOES. This is the future

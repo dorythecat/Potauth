@@ -1,6 +1,7 @@
 const API_URL ="http://127.0.0.1:8000"
 
 const potato_login_container = document.getElementById("potato_login_container");
+const info = document.getElementById("info");
 const login_and_register = document.getElementById("login_and_register");
 const content = document.getElementById("content");
 const logout = document.getElementById("logout");
@@ -115,7 +116,9 @@ function getCookie(name) {
 }
 
 if (document.cookie.includes("token=")) {
-    login_and_register.style.display = "none";
+    // We use remove so that it doesn't mess with scrollify
+    info.remove();
+    login_and_register.remove();
     content.style.display = "block";
     logout.style.display = "block";
 }
