@@ -14,12 +14,10 @@ document.getElementById("login_button").onclick = function() {
         return;
     }
 
-    const response =  fetch(`${API_URL}/get_images?username=${username}`, {
+    fetch(`${API_URL}/get_images?username=${username}`, {
         method: "GET",
         headers: {}
-    }).catch(err => {
-        console.log(err);
-    }).then(res => res.json()).then(res => {
+    }).catch(err => console.log(err)).then(res => res.json()).then(res => {
         potato_login_container.children[0].src = `data:image/webp;base64,${res['image0']}`;
         potato_login_container.children[1].src = `data:image/webp;base64,${res['image1']}`;
         potato_login_container.children[2].src = `data:image/webp;base64,${res['image2']}`;
@@ -42,9 +40,7 @@ document.getElementById("login_button").onclick = function() {
                     method: "POST",
                     headers: {},
                     body: formData
-                }).catch(err => {
-                    console.log(err);
-                }).then(r => {
+                }).catch(err => console.log(err)).then(r => {
                     if (r.status !== 200) {
                         alert("Login failed!");
                         window.location.reload();
@@ -87,13 +83,18 @@ document.getElementById("register_button").onclick = function() {
                 method: "POST",
                 headers: {},
                 body: formData
-            }).catch(err => {
-                console.log(err);
-            }).then(r => r.json()).then(r => {
-                document.cookie = "username=" + username;
-                document.cookie = "potatoType=" + potatoType;
-                document.cookie = "token=" + r;
-                document.location.reload();
+            }).catch(err => console.log(err)).then(r => {
+                if (r.status !== 200) {
+                    alert("Registration failed!");
+                    window.location.reload();
+                    return;
+                }
+                r.json().then(r => {
+                    document.cookie = "username=" + username;
+                    document.cookie = "potatoType=" + potatoType;
+                    document.cookie = "token=" + r;
+                    document.location.reload();
+                });
             });
         }
     }
