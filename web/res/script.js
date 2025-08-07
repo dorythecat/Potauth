@@ -118,3 +118,14 @@ if (document.cookie.includes("token=")) {
     content.remove();
     your_potatoes.remove();
 }
+
+
+// Potatoes
+fetch(`${API_URL}/potatoes/${getCookie("username")}`, {
+    "method": "GET",
+    "headers": {}
+}).catch(err => console.log(err)).then(res => res.json()).then(res => {
+    for (const potato of res) {
+        your_potatoes_container.innerHTML += `<img src="data:image/webp;base64,${potato}" alt="potato" class="potato">`;
+    }
+})

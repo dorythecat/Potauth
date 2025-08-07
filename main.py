@@ -51,7 +51,7 @@ app.add_middleware(
 )
 
 USERS_DB = "potauth.db" # User database
-POST_DB = "posts.db" # Posts database
+POTATO_DB = "potatoes.db" # Potatoes database
 
 ALGORITHM = "HS256" # Algorith for JWT to use to encode tokens
 security = HTTPBearer()
@@ -267,22 +267,21 @@ async def get_images(username: str) -> Images:
     )
 
 
-class Post(BaseModel):
-    title: str
-    content: str
-
-
-@app.get("/posts/{username}")
-async def get_posts(username: str) -> list[Post]:
+@app.get("/potatoes/{username}",
+         response_model=list[bytes])
+async def get_posts(username: str) -> list[bytes]:
     """Get a list of posts."""
-    if not os.path.exists(POST_DB):
+    if not os.path.exists(POTATO_DB):
         return []
-    with open(POST_DB, "r") as f:
+    with open(POTATO_DB, "r") as f:
         lines = f.readlines()
     posts = []
     for line in lines:
         line = line.strip().split(":")
         if line[0] != username:
             continue
-        posts.append(Post(title=line[1], content=line[2]))
+        img = Image.open(f"images/posts/{line[1]}.webp")
+        img_byte_arr = BytesIO()
+        img.save(img_byte_arr, format='WEBP')
+        posts.append(base64.b64encode(img_byte_arr.getvalue()))
     return posts
