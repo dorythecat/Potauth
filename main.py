@@ -217,6 +217,8 @@ async def delete_user(token: str = Depends(get_current_token)) -> None:
 async def add_fodder(image: Annotated[bytes, File(description="The image to send.")]) -> None:
     """Send a potato to the API, that will be added to the fodder list."""
     # Check the max fodder ID
+    if not os.path.exists("images/fodder"):
+        os.mkdir("images/fodder")
     if not os.path.exists("images/fodder/fodder_id"):
         with open("images/fodder/fodder_id", "w+") as f:
             f.write("0")
