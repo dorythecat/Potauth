@@ -39,7 +39,21 @@ app = FastAPI(
     license_info={
         "name": "GNU Affero General Public License v3.0 or later",
         "identifier": "AGPL-3.0-or-later"
-    }
+    },
+    openapi_tags=[
+        {
+            "name": "Authentication",
+            "description": "Authentication endpoints"
+        },
+        {
+            "name": "Utility",
+            "description": "Utility endpoints"
+        },
+        {
+            "name": "Potatoes",
+            "description": "Potato-related endpoints"
+        }
+    ]
 )
 
 app.add_middleware(
@@ -123,6 +137,7 @@ class PotatoType(str, Enum):
 
 @app.post("/login",
           response_model=str,
+          tags=["Authentication"],
           responses={
               401: { "model": ErrorMessage },
               404: { "model": ErrorMessage }
@@ -157,6 +172,7 @@ async def login(username: str,
 
 @app.post("/register",
           response_model=str,
+          tags=["Authentication"],
           responses={
               401: { "model": ErrorMessage },
               404: { "model": ErrorMessage }
@@ -181,7 +197,8 @@ async def register(username: str,
     return create_access_token({"access_token": username})
 
 
-@app.delete("/delete_user")
+@app.delete("/delete_user",
+            tags=["Authentication"])
 async def delete_user(token: str = Depends(get_current_token)) -> None:
     """Delete a user."""
     if not os.path.exists(USERS_DB):
@@ -195,7 +212,8 @@ async def delete_user(token: str = Depends(get_current_token)) -> None:
     os.remove(f"images/users/{token}.webp")
 
 
-@app.post("/add_fodder")
+@app.post("/add_fodder",
+          tags=["Utility"])
 async def add_fodder(image: Annotated[bytes, File(description="The image to send.")]) -> None:
     """Send a potato to the API, that will be added to the fodder list."""
     # Check the max fodder ID
@@ -238,7 +256,8 @@ def get_image_bytes(image: str) -> bytes:
 
 
 @app.get("/get_images",
-         response_model=Images)
+         response_model=Images,
+         tags=["Utility"])
 async def get_images(username: str) -> Images:
     """Get a list of images, eight fodder, one the user image."""
     with open("images/fodder/fodder_id", "r") as f:
@@ -268,9 +287,10 @@ async def get_images(username: str) -> Images:
 
 
 @app.get("/potatoes/{username}",
-         response_model=list[bytes])
+         response_model=list[bytes],
+         tags=["Potatoes"])
 async def get_posts(username: str) -> list[bytes]:
-    """Get a list of posts."""
+    """Get all potatoes in your gallery."""
     if not os.path.exists(POTATO_DB):
         return []
     with open(POTATO_DB, "r") as f:
@@ -287,9 +307,10 @@ async def get_posts(username: str) -> list[bytes]:
     return posts
 
 
-@app.post("/post")
+@app.post("/post",
+          tags=["Potatoes"])
 async def post(token: Annotated[str, Depends(get_current_token)],
-              image: Annotated[bytes, File(description="The image to send.")]) -> None:
+               image: Annotated[bytes, File(description="The image to send.")],) -> None:
     """Post a potato to your gallery."""
     if not os.path.exists("images/posts"):
         os.mkdir("images/posts")
@@ -300,7 +321,8 @@ async def post(token: Annotated[str, Depends(get_current_token)],
         f.write(f"\n{token}:{potato_code}")
 
 
-@app.delete("/delete_post")
+@app.delete("/delete_post",
+            tags=["Potatoes"])
 async def del_post(token: Annotated[str, Depends(get_current_token)],
                    image: Annotated[bytes, File(description="The image to send.")]) -> None:
     """Delete a potato from your gallery."""
