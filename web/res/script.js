@@ -3,6 +3,7 @@ const API_URL ="http://127.0.0.1:8000"
 const potato_login_container = document.getElementById("potato_login_container");
 const login_and_register = document.getElementById("login_and_register");
 const content = document.getElementById("content");
+const logout = document.getElementById("logout");
 
 document.getElementById("login_button").onclick = function() {
     const username = document.getElementById("username_login").value;
@@ -29,7 +30,35 @@ document.getElementById("login_button").onclick = function() {
         potato_login_container.children[7].src = `data:image/webp;base64,${res['image7']}`;
         potato_login_container.children[8].src = `data:image/webp;base64,${res['image8']}`;
 
-        console.log(potato_login_container.children[0].src.split(",")[1])
+        for (let potato of potato_login_container.children) {
+            potato.onclick = function() {
+                const username = document.getElementById("username_login").value;
+                const potatoType = document.getElementById("potato_type_login").value;
+
+                const formData = new FormData();
+                formData.append("image", res[potato.id]);
+
+                const response = fetch(`${API_URL}/login?username=${username}&favourite_potato=${potatoType}`, {
+                    method: "POST",
+                    headers: {},
+                    body: formData
+                }).catch(err => {
+                    console.log(err);
+                }).then(r => {
+                    if (r.status !== 200) {
+                        alert("Login failed!");
+                        window.location.reload();
+                        return;
+                    }
+                    r.json().then(r => {
+                        document.cookie = "username=" + username;
+                        document.cookie = "potatoType=" + potatoType;
+                        document.cookie = "token=" + r;
+                        window.location.reload();
+                    });
+                });
+            }
+        }
 
         potato_login_container.style.display = "flex";
     });
@@ -51,11 +80,8 @@ document.getElementById("register_button").onclick = function() {
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = function() {
-            // We need to do this because otherwise it will later give us a pesky bug
-            // Yes, not the best solution, but the easiest and most efficient one xd
             const formData = new FormData();
-            potato_login_container.children[0].src = reader.result;
-            formData.append("image", potato_login_container.children[0].src.split(",")[1]);
+            formData.append("image", reader.result.split(",")[1]);
 
             fetch(`${API_URL}/register?username=${username}&favourite_potato=${potatoType}`, {
                 method: "POST",
@@ -73,35 +99,11 @@ document.getElementById("register_button").onclick = function() {
     }
 }
 
-for (let potato of potato_login_container.children) {
-    potato.onclick = function() {
-        const username = document.getElementById("username_login").value;
-        const potatoType = document.getElementById("potato_type_login").value;
-
-        const formData = new FormData();
-        formData.append("image", this.src.split(",")[1]);
-
-        console.log(this.src.split(",")[1]);
-        const response = fetch(`${API_URL}/login?username=${username}&favourite_potato=${potatoType}`, {
-            method: "POST",
-            headers: {},
-            body: formData
-        }).catch(err => {
-            console.log(err);
-        }).then(r => {
-            if (r.status !== 200) {
-                alert("Login failed!");
-                window.location.reload();
-                return;
-            }
-            r.json().then(r => {
-                document.cookie = "username=" + username;
-                document.cookie = "potatoType=" + potatoType;
-                document.cookie = "token=" + r;
-                window.location.reload();
-            });
-        });
-    }
+logout.onclick = function() {
+    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+    document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    document.cookie = "potatoType=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    window.location.reload();
 }
 
 function getCookie(name) {
@@ -114,4 +116,5 @@ function getCookie(name) {
 if (document.cookie.includes("token=")) {
     login_and_register.style.display = "none";
     content.style.display = "block";
+    logout.style.display = "block";
 }

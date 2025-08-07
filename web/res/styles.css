@@ -138,6 +138,13 @@ ul {
     margin-bottom: 40vh;
 }
 
+#logout {
+    float: right;
+    margin: 20px;
+    display: none;
+    cursor: pointer;
+}
+
 @media screen and (max-width: 800px) {
     #login_and_register {
         flex-direction: column;

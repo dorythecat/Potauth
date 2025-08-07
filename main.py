@@ -83,9 +83,15 @@ async def get_current_token(credentials: HTTPAuthorizationCredentials = Security
 
 
 
-def get_potato_code(img_byte_arr: bytes) -> int:
+def get_potato_code(img: Image) -> str:
     """Get the potato code from an image."""
-    return int(''.join(img_byte_arr.hex().translate(''.maketrans('abcdef', '192837')).split("0"))[::-1][:4300]) % 9007199254740991
+    img = img.resize((10, 10))
+    img = img.convert("L")
+    pixel_data = list(img.getdata())
+    avg_pixel = sum(pixel_data)/len(pixel_data)
+    bits = "".join(['1' if (px >= avg_pixel) else '0' for px in pixel_data])
+    hex_representation = str(hex(int(bits, 2)))[2:][::-1].upper()
+    return hex_representation
 
 
 class ErrorMessage(BaseModel):
@@ -129,12 +135,9 @@ async def login(username: str,
                 return JSONResponse(status_code=404, content={"message": "User does not exist."})
 
             # Check image
-            img = Image.open(BytesIO(base64.b64decode(image)))
-            img_byte_arr = BytesIO()
-            img.save(img_byte_arr, format='WEBP')
-            potato_code = get_potato_code(img_byte_arr.getvalue())
+            potato_code = get_potato_code(Image.open(BytesIO(base64.b64decode(image))))
 
-            if potato_code != int(line[2]):
+            if potato_code != line[2]:
                 return JSONResponse(status_code=401, content={"message": "Incorrect login data."})
 
             return create_access_token({"access_token": username})
@@ -161,9 +164,7 @@ async def register(username: str,
     img = Image.open(BytesIO(base64.b64decode(image)))
     start_corner = random.randint(0, img.size[0] - 256), random.randint(0, img.size[1] - 256)
     img = img.crop((start_corner[0], start_corner[1], start_corner[0] + 256, start_corner[1] + 256))
-    img_byte_arr = BytesIO()
-    img.save(img_byte_arr, format='WEBP')
-    potato_code = get_potato_code(img_byte_arr.getvalue())
+    potato_code = get_potato_code(img)
     with open(DATABASE_PATH, "a+") as f:
         f.write(f"\n{username}:{favourite_potato.value}:{potato_code}")
     img.save(f"images/users/{username}.webp")
