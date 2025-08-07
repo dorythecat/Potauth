@@ -19,15 +19,17 @@ document.getElementById("login_button").onclick = function() {
     }).catch(err => {
         console.log(err);
     }).then(res => res.json()).then(res => {
-        potato_login_container.children[0].src = `data:image/WEBP;base64,${res['image0']}`;
-        potato_login_container.children[1].src = `data:image/WEBP;base64,${res['image1']}`;
-        potato_login_container.children[2].src = `data:image/WEBP;base64,${res['image2']}`;
-        potato_login_container.children[3].src = `data:image/WEBP;base64,${res['image3']}`;
-        potato_login_container.children[4].src = `data:image/WEBP;base64,${res['image4']}`;
-        potato_login_container.children[5].src = `data:image/WEBP;base64,${res['image5']}`;
-        potato_login_container.children[6].src = `data:image/WEBP;base64,${res['image6']}`;
-        potato_login_container.children[7].src = `data:image/WEBP;base64,${res['image7']}`;
-        potato_login_container.children[8].src = `data:image/WEBP;base64,${res['image8']}`;
+        potato_login_container.children[0].src = `data:image/webp;base64,${res['image0']}`;
+        potato_login_container.children[1].src = `data:image/webp;base64,${res['image1']}`;
+        potato_login_container.children[2].src = `data:image/webp;base64,${res['image2']}`;
+        potato_login_container.children[3].src = `data:image/webp;base64,${res['image3']}`;
+        potato_login_container.children[4].src = `data:image/webp;base64,${res['image4']}`;
+        potato_login_container.children[5].src = `data:image/webp;base64,${res['image5']}`;
+        potato_login_container.children[6].src = `data:image/webp;base64,${res['image6']}`;
+        potato_login_container.children[7].src = `data:image/webp;base64,${res['image7']}`;
+        potato_login_container.children[8].src = `data:image/webp;base64,${res['image8']}`;
+
+        console.log(potato_login_container.children[0].src.split(",")[1])
 
         potato_login_container.style.display = "flex";
     });
@@ -49,9 +51,11 @@ document.getElementById("register_button").onclick = function() {
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = function() {
-            // Load the image o the API
+            // We need to do this because otherwise it will later give us a pesky bug
+            // Yes, not the best solution, but the easiest and most efficient one xd
             const formData = new FormData();
-            formData.append("image", reader.result.split(",")[1]);
+            potato_login_container.children[0].src = reader.result;
+            formData.append("image", potato_login_container.children[0].src.split(",")[1]);
 
             fetch(`${API_URL}/register?username=${username}&favourite_potato=${potatoType}`, {
                 method: "POST",
@@ -84,11 +88,18 @@ for (let potato of potato_login_container.children) {
             body: formData
         }).catch(err => {
             console.log(err);
-        }).then(r => r.json()).then(r => {
-            document.cookie = "username=" + username;
-            document.cookie = "potatoType=" + potatoType;
-            document.cookie = "token=" + r;
-            window.location.reload();
+        }).then(r => {
+            if (r.status !== 200) {
+                alert("Login failed!");
+                window.location.reload();
+                return;
+            }
+            r.json().then(r => {
+                document.cookie = "username=" + username;
+                document.cookie = "potatoType=" + potatoType;
+                document.cookie = "token=" + r;
+                window.location.reload();
+            });
         });
     }
 }

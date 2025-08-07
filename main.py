@@ -62,7 +62,7 @@ async def root() -> RedirectResponse:
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + (expires_delta if expires_delta else timedelta(minutes=15))
+    expire = datetime.now(timezone.utc) + (expires_delta if expires_delta else timedelta(minutes=30))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
@@ -108,9 +108,9 @@ class PotatoType(str, Enum):
               401: {"model": ErrorMessage},
               404: {"model": ErrorMessage}
           })
-def login(username: str,
-          favourite_potato: PotatoType,
-          image: Annotated[bytes, File(description="Selected image")]) -> str | JSONResponse:
+async def login(username: str,
+                favourite_potato: PotatoType,
+                image: Annotated[bytes, File(description="Selected image")]) -> str | JSONResponse:
     """Login to the API."""
     if not os.path.exists(DATABASE_PATH):
         return JSONResponse(status_code=401, content={"message": "User does no exist."})
@@ -147,15 +147,10 @@ def login(username: str,
               401: {"model": ErrorMessage},
               404: {"model": ErrorMessage}
           })
-def register(username: str,
-             favourite_potato: PotatoType,
-             image: Annotated[bytes, File(description="Selected image")]) -> str | JSONResponse:
+async def register(username: str,
+                   favourite_potato: PotatoType,
+                   image: Annotated[bytes, File(description="Selected image")]) -> str | JSONResponse:
     """Register a new user."""
-    img = Image.open(BytesIO(base64.b64decode(image)))
-    img_byte_arr = BytesIO()
-    img.save(img_byte_arr, format='WEBP')
-    potato_code = get_potato_code(img_byte_arr.getvalue())
-
     if os.path.exists(DATABASE_PATH):
         with open(DATABASE_PATH, "r") as f:
             lines = f.readlines()
@@ -163,21 +158,16 @@ def register(username: str,
                 line = line.strip().split(":")
                 if line[0] == username:
                     return JSONResponse(status_code=401, content={"message": "User already exists."})
-        with open(DATABASE_PATH, "a+") as f:
-            f.write(f"\n{username}:{favourite_potato.value}:{potato_code}")
-            img = Image.open(BytesIO(base64.b64decode(image)))
-            start_corner = random.randint(0, img.size[0] - 256), random.randint(0, img.size[1] - 256)
-            img = img.crop((start_corner[0], start_corner[1], start_corner[0] + 256, start_corner[1] + 256))
-            img.save(f"images/users/{username}.webp")
-            return create_access_token({"access_token": username})
-    else:
-        with open(DATABASE_PATH, "w+") as f:
-            f.write(f"{username}:{favourite_potato.value}:{potato_code}")
-            img = Image.open(BytesIO(base64.b64decode(image)))
-            start_corner = random.randint(0, img.size[0] - 256), random.randint(0, img.size[1] - 256)
-            img = img.crop((start_corner[0], start_corner[1], start_corner[0] + 256, start_corner[1] + 256))
-            img.save(f"images/users/{username}.webp")
-            return create_access_token({"access_token": username})
+    img = Image.open(BytesIO(base64.b64decode(image)))
+    start_corner = random.randint(0, img.size[0] - 256), random.randint(0, img.size[1] - 256)
+    img = img.crop((start_corner[0], start_corner[1], start_corner[0] + 256, start_corner[1] + 256))
+    img_byte_arr = BytesIO()
+    img.save(img_byte_arr, format='WEBP')
+    potato_code = get_potato_code(img_byte_arr.getvalue())
+    with open(DATABASE_PATH, "a+") as f:
+        f.write(f"\n{username}:{favourite_potato.value}:{potato_code}")
+    img.save(f"images/users/{username}.webp")
+    return create_access_token({"access_token": username})
 
 
 @app.put("/add_fodder")
