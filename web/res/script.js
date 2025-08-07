@@ -19,17 +19,9 @@ document.getElementById("login_button").onclick = function() {
         method: "GET",
         headers: {}
     }).catch(err => console.log(err)).then(res => res.json()).then(res => {
-        potato_login_container.children[0].src = `data:image/webp;base64,${res['image0']}`;
-        potato_login_container.children[1].src = `data:image/webp;base64,${res['image1']}`;
-        potato_login_container.children[2].src = `data:image/webp;base64,${res['image2']}`;
-        potato_login_container.children[3].src = `data:image/webp;base64,${res['image3']}`;
-        potato_login_container.children[4].src = `data:image/webp;base64,${res['image4']}`;
-        potato_login_container.children[5].src = `data:image/webp;base64,${res['image5']}`;
-        potato_login_container.children[6].src = `data:image/webp;base64,${res['image6']}`;
-        potato_login_container.children[7].src = `data:image/webp;base64,${res['image7']}`;
-        potato_login_container.children[8].src = `data:image/webp;base64,${res['image8']}`;
-
-        for (let potato of potato_login_container.children) {
+        login_and_register.style.paddingTop = "0";
+        for (const potato of potato_login_container.children) {
+            potato.src = `data:image/webp;base64,${res[potato.id]}`;
             potato.onclick = function() {
                 const username = document.getElementById("username_login").value;
                 const potatoType = document.getElementById("potato_type_login").value;
@@ -121,4 +113,6 @@ if (document.cookie.includes("token=")) {
     login_and_register.remove();
     content.style.display = "block";
     logout.style.display = "block";
+} else {
+    content.remove();
 }

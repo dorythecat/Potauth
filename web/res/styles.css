@@ -13,12 +13,9 @@ body {
 }
 
 .section {
-    margin-top: 30vh;
-    margin-bottom: 100vh;
     padding-top: 30vh;
     width: 80%;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 30vh auto 100vh;
 }
 
 #title {
@@ -45,7 +42,6 @@ ul {
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
-    padding: 0 4px;
 }
 
 #login_and_register input {
