@@ -165,7 +165,7 @@ def register(username: str,
                     return JSONResponse(status_code=401, content={"message": "User already exists."})
         with open(DATABASE_PATH, "a+") as f:
             f.write(f"\n{username}:{favourite_potato.value}:{potato_code}")
-            img = Image.open(BytesIO(image))
+            img = Image.open(BytesIO(base64.b64decode(image)))
             start_corner = random.randint(0, img.size[0] - 256), random.randint(0, img.size[1] - 256)
             img = img.crop((start_corner[0], start_corner[1], start_corner[0] + 256, start_corner[1] + 256))
             img.save(f"images/users/{username}.webp")
@@ -173,7 +173,7 @@ def register(username: str,
     else:
         with open(DATABASE_PATH, "w+") as f:
             f.write(f"{username}:{favourite_potato.value}:{potato_code}")
-            img = Image.open(BytesIO(image))
+            img = Image.open(BytesIO(base64.b64decode(image)))
             start_corner = random.randint(0, img.size[0] - 256), random.randint(0, img.size[1] - 256)
             img = img.crop((start_corner[0], start_corner[1], start_corner[0] + 256, start_corner[1] + 256))
             img.save(f"images/users/{username}.webp")
