@@ -29,7 +29,7 @@ document.getElementById("login_button").onclick = function() {
     }).catch(err => console.log(err)).then(res => {
         if (res.status !== 200) {
             alert("Login failed!");
-            window.location.reload();
+            document.location.reload();
             return;
         }
         res.json().then(res => {
@@ -47,14 +47,14 @@ document.getElementById("login_button").onclick = function() {
                     }).catch(err => console.log(err)).then(r => {
                         if (r.status !== 200) {
                             alert("Login failed!");
-                            window.location.reload();
+                            document.location.reload();
                             return;
                         }
                         r.json().then(r => {
                             document.cookie = `username=${username}; Max-Age=1800;`;
                             document.cookie = `potatoType=${potatoType}; Max-Age=1800;`;
                             document.cookie = `token=${r}; Max-Age=1800;`;
-                            window.location.reload();
+                            document.location.reload();
                         });
                     });
                 }
@@ -90,7 +90,7 @@ document.getElementById("register_button").onclick = function() {
             }).catch(err => console.log(err)).then(r => {
                 if (r.status !== 200) {
                     alert("Registration failed!");
-                    window.location.reload();
+                    document.location.reload();
                     return;
                 }
                 r.json().then(r => {
@@ -109,7 +109,7 @@ logout.onclick = function() {
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC";
     document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
     document.cookie = "potatoType=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-    window.location.reload();
+    document.location.reload();
 }
 
 function getCookie(name) {
@@ -165,7 +165,7 @@ potato_upload_file.onchange = function() {
                 alert("Upload failed!");
                 return;
             }
-            window.location.reload();
+            document.location.reload();
         })
     }
 }
