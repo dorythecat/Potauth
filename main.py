@@ -210,9 +210,9 @@ async def register(username: str,
 @app.delete("/delete_user",
             tags=["Authentication"])
 async def delete_user(token: str = Depends(get_current_token)) -> None:
-    """Delete a user."""
+    """Delete a user from the database."""
     if not os.path.exists(USERS_DB):
-        return # We don't need to do nothing
+        return # We don't need to do anything at all
     with open(USERS_DB, "r") as f:
         lines = f.readlines()
     with open(USERS_DB, "w") as f:
