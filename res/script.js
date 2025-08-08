@@ -26,9 +26,6 @@ document.getElementById("login_button").onclick = function() {
         for (const potato of potato_login_container.children) {
             potato.src = `data:image/webp;base64,${res[potato.id]}`;
             potato.onclick = function() {
-                const username = document.getElementById("username_login").value;
-                const potatoType = document.getElementById("potato_type_login").value;
-
                 const formData = new FormData();
                 formData.append("image", res[potato.id]);
 
