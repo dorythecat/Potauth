@@ -89,7 +89,7 @@ def get_current_token(credentials: HTTPAuthorizationCredentials = Security(secur
         return HTTPException(
             status_code=401,
             detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
+            headers={ "WWW-Authenticate": "Bearer" },
         )
     try:
         data = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -98,7 +98,7 @@ def get_current_token(credentials: HTTPAuthorizationCredentials = Security(secur
         raise HTTPException(
             status_code=401,
             detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
+            headers={ "WWW-Authenticate": "Bearer" },
         )
 
 
@@ -147,7 +147,7 @@ async def login(username: str,
                 image: Annotated[bytes, File(description="Selected image")]) -> str | JSONResponse:
     """Login to the API."""
     if not os.path.exists(USERS_DB):
-        return JSONResponse(status_code=401, content={"message": "User does no exist."})
+        return JSONResponse(status_code=401, content={ "message": "User does no exist." })
 
     with open(USERS_DB, "r") as f:
         lines = f.readlines()
@@ -156,18 +156,18 @@ async def login(username: str,
             if line[0] != username:
                 continue
             if line[1] != str(favourite_potato.value):
-                return JSONResponse(status_code=401, content={"message": "Incorrect login data."})
+                return JSONResponse(status_code=401, content={ "message": "Incorrect login data." })
             if not os.path.exists("images/users"):
                 os.mkdir("images/users")
             if not os.path.exists(f"images/users/{username}.webp"):
-                return JSONResponse(status_code=404, content={"message": "User does not exist."})
+                return JSONResponse(status_code=404, content={ "message": "User does not exist." })
 
             # Check image
             if get_potato_code(Image.open(BytesIO(base64.b64decode(image)))) != line[2]:
-                return JSONResponse(status_code=401, content={"message": "Incorrect login data."})
+                return JSONResponse(status_code=401, content={ "message": "Incorrect login data." })
 
             return create_access_token({"access_token": username})
-    return JSONResponse(status_code=404, content={"message": "User does not exist."})
+    return JSONResponse(status_code=404, content={ "message": "User does not exist." })
 
 
 @app.post("/register",
@@ -187,7 +187,7 @@ async def register(username: str,
             for line in lines:
                 line = line.strip().split(":")
                 if line[0] == username:
-                    return JSONResponse(status_code=401, content={"message": "User already exists."})
+                    return JSONResponse(status_code=401, content={ "message": "User already exists." })
     img = Image.open(BytesIO(base64.b64decode(image)))
     img = random_crop(img)
     potato_code = get_potato_code(img)
