@@ -47,12 +47,14 @@ ul {
     width: 100%;
 }
 
-#login_and_register input {
+#login_and_register input,
+#login_and_register select,
+#login_and_register button {
     font-size: 16px;
+    width: 90%;
     margin: 20px;
     padding: 10px;
     text-align: center;
-    width: 90%;
     left: 0;
     top: 0;
     position: relative;
@@ -66,41 +68,17 @@ ul {
     outline: none;
 }
 
-#login_and_register select {
-    width: 95%;
-    margin: 20px;
-    padding: 10px;
-    text-align: center;
-    left: 0;
-    top: 0;
-    position: relative;
-    background-color: black;
-    color: white;
-    border: 1px solid black;
-    text-shadow: 0 0 10px white;
-}
-
 #login_and_register button {
-    margin: 20px;
-    padding: 10px;
-    text-align: center;
-    width: 90%;
-    left: 0;
-    top: 0;
-    position: relative;
-    background-color: black;
-    color: white;
     border: 5px solid white;
-    text-shadow: 0 0 10px white;
     box-shadow: 0 0 10px white;
     cursor: pointer;
     transition: 0.2s;
-    font-size: 16px;
 }
 
 #login_and_register button:hover {
     background-color: white;
     color: black;
+    box-shadow: 0 0 20px white;
 }
 
 #login,
@@ -118,7 +96,7 @@ ul {
     width: 100%;
 }
 
-.potato_login_container img {
+img {
     margin: 4px;
     width: 30%;
     max-width: 128px;
@@ -127,6 +105,10 @@ ul {
     box-shadow: 0 0 10px white;
     cursor: pointer;
     transition: 0.2s;
+}
+
+#your_potatoes_container img {
+    max-width: 256px;
 }
 
 img:hover {
@@ -153,10 +135,6 @@ a:hover {
 }
 
 footer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
     position: fixed;
     bottom: 0;
     width: 100%;
@@ -165,14 +143,7 @@ footer {
     text-shadow: 0 0 10px white;
 }
 
-footer p {
-    margin: 20px 10%;
-}
-
-#your_potatoes {
-    margin-bottom: 20px;
-}
-
+footer,
 #your_potatoes_container {
     display: flex;
     flex-wrap: wrap;
@@ -180,15 +151,12 @@ footer p {
     align-items: center;
 }
 
-#your_potatoes_container img {
-    margin: 4px;
-    width: 30%;
-    max-width: 256px;
-    object-fit: cover;
-    border-radius: 5px;
-    box-shadow: 0 0 10px white;
-    cursor: pointer;
-    transition: 0.2s;
+footer p {
+    margin: 20px 10%;
+}
+
+#your_potatoes {
+    margin-bottom: 20px;
 }
 
 @media screen and (max-width: 800px) {

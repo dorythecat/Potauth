@@ -21,35 +21,42 @@ document.getElementById("login_button").onclick = function() {
     fetch(`${API_URL}/get_images?username=${username}`, {
         method: "GET",
         headers: {}
-    }).catch(err => console.log(err)).then(res => res.json()).then(res => {
-        login_and_register.style.paddingTop = "0";
-        for (const potato of potato_login_container.children) {
-            potato.src = `data:image/webp;base64,${res[potato.id]}`;
-            potato.onclick = function() {
-                const formData = new FormData();
-                formData.append("image", res[potato.id]);
-
-                const response = fetch(`${API_URL}/login?username=${username}&favourite_potato=${potatoType}`, {
-                    method: "POST",
-                    headers: {},
-                    body: formData
-                }).catch(err => console.log(err)).then(r => {
-                    if (r.status !== 200) {
-                        alert("Login failed!");
-                        window.location.reload();
-                        return;
-                    }
-                    r.json().then(r => {
-                        document.cookie = `username=${username}; Max-Age=1800;`;
-                        document.cookie = `potatoType=${potatoType}; Max-Age=1800;`;
-                        document.cookie = `token=${r}; Max-Age=1800;`;
-                        window.location.reload();
-                    });
-                });
-            }
+    }).catch(err => console.log(err)).then(res => {
+        if (res.status !== 200) {
+            alert("Login failed!");
+            window.location.reload();
+            return;
         }
-        potato_login_container.style.display = "flex";
-        $.scrollify.update(); // Make sure the spacing is right
+        res.json().then(res => {
+            login_and_register.style.paddingTop = "0";
+            for (const potato of potato_login_container.children) {
+                potato.src = `data:image/webp;base64,${res[potato.id]}`;
+                potato.onclick = function() {
+                    const formData = new FormData();
+                    formData.append("image", res[potato.id]);
+
+                    const response = fetch(`${API_URL}/login?username=${username}&favourite_potato=${potatoType}`, {
+                        method: "POST",
+                        headers: {},
+                        body: formData
+                    }).catch(err => console.log(err)).then(r => {
+                        if (r.status !== 200) {
+                            alert("Login failed!");
+                            window.location.reload();
+                            return;
+                        }
+                        r.json().then(r => {
+                            document.cookie = `username=${username}; Max-Age=1800;`;
+                            document.cookie = `potatoType=${potatoType}; Max-Age=1800;`;
+                            document.cookie = `token=${r}; Max-Age=1800;`;
+                            window.location.reload();
+                        });
+                    });
+                }
+            }
+            potato_login_container.style.display = "flex";
+            $.scrollify.update(); // Make sure the spacing is right
+        });
     });
 }
 
