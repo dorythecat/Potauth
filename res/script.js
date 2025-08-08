@@ -14,7 +14,12 @@ document.getElementById("login_button").onclick = function() {
     const potatoType = document.getElementById("potato_type_login").value;
 
     if (username.length <  4) {
-        alert("Username must be at least 4 characters long");
+        alert("Username must be at least 4 characters long!");
+        return;
+    }
+
+    if (username.length > 32) {
+        alert("Username must be at most 32 characters long!");
         return;
     }
 
