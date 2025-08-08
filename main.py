@@ -199,6 +199,8 @@ async def register(username: str,
     potato_code = get_potato_code(img)
     with open(USERS_DB, "a+") as f:
         f.write(f"\n{username}:{favourite_potato.value}:{potato_code}")
+    if not os.path.exists("images/users"):
+        os.mkdir("images/users")
     img.save(f"images/users/{username}.webp")
     return create_access_token({"access_token": username})
 
