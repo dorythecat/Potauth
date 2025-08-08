@@ -9,7 +9,7 @@ import base64
 from fastapi import Depends, FastAPI, HTTPException, Security, Body, Response, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi.responses import RedirectResponse, JSONResponse, PlainTextResponse
 from pydantic import BaseModel
 from datetime import datetime, timedelta, timezone
 from jwt import InvalidTokenError
@@ -75,6 +75,11 @@ security = HTTPBearer()
 @app.get("/", include_in_schema=False)
 async def root() -> RedirectResponse:
     return RedirectResponse("/docs", status_code=301)
+
+
+@app.get("/robots.txt", include_in_schema=False)
+async def robots() -> PlainTextResponse:
+    return PlainTextResponse("User-agent: *\nDisallow: /", media_type="text/plain")
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
