@@ -270,12 +270,8 @@ async def get_images(username: str) -> Images | None:
         fodder_id = int(f.read().strip())
 
     images = []
-    while True:
-        random_id = random.randint(0, fodder_id - 1)
-        if random_id not in images:
-            images.append(get_image_bytes(f"images/fodder/{random_id}_{random.randint(0, 9)}.webp"))
-        if len(images) == 8:
-            break
+    while len(images) < 8:
+        images.append(get_image_bytes(f"images/fodder/{sys_random.randint(0, fodder_id - 1)}_{sys_random.randint(0, 9)}.webp"))
     images.append(get_image_bytes(f"images/users/{username}.webp"))
     random.shuffle(images)
 
