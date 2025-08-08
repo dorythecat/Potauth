@@ -70,7 +70,6 @@ document.getElementById("register_button").onclick = function() {
         return;
     }
 
-    potato_register_file.style.display = "block";
     potato_register_file.onchange = function() {
         const file = this.files[0];
         const reader = new FileReader();
@@ -98,6 +97,7 @@ document.getElementById("register_button").onclick = function() {
             });
         }
     }
+    potato_register_file.style.display = "block";
 }
 
 logout.onclick = function() {
