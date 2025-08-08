@@ -86,9 +86,9 @@ document.getElementById("register_button").onclick = function() {
                     return;
                 }
                 r.json().then(r => {
-                    document.cookie = "username=" + username;
-                    document.cookie = "potatoType=" + potatoType;
-                    document.cookie = "token=" + r;
+                    document.cookie = `username=${username}; Max-Age=1800;`;
+                    document.cookie = `potatoType=${potatoType}; Max-Age=1800;`;
+                    document.cookie = `token=${r}; Max-Age=1800;`;
                     document.location.reload();
                 });
             });
