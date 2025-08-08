@@ -1,4 +1,5 @@
 from enum import Enum
+from time import sleep
 from typing import Annotated
 
 import jwt
@@ -11,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import RedirectResponse, JSONResponse, PlainTextResponse
 from pydantic import BaseModel
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, time
 from jwt import InvalidTokenError
 
 from PIL import Image
@@ -21,8 +22,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 SECRET_KEY = os.getenv("SECRET_KEY")
-
-sys_random = random.SystemRandom()
 
 app = FastAPI(
     title="Potauth API",
@@ -124,7 +123,7 @@ def random_crop(img: Image, size: tuple[int, int] = (256, 256)) -> Image:
     """Randomly crop an image."""
     if img.size[0] < size[0] or img.size[1] < size[1]:
         return img.resize((size[0], size[1])) # If the image is undersized, just return a sized version of it
-    start_corner = sys_random.randint(0, img.size[0] - size[0]), sys_random.randint(0, img.size[1] - size[1])
+    start_corner = random.randint(0, img.size[0] - size[0]), random.randint(0, img.size[1] - size[1])
     return img.crop((start_corner[0], start_corner[1], start_corner[0] + size[0], start_corner[1] + size[1]))
 
 
@@ -237,8 +236,7 @@ async def add_fodder(image: Annotated[bytes, File(description="The image to send
     img = Image.open(BytesIO(image))
     for i in range(10):
         # Randomly crop 10 times and save the cropped versions
-        img = random_crop(img)
-        img.save(f"images/fodder/{fodder_id}_{i}" + ".webp")
+        random_crop(img).save(f"images/fodder/{fodder_id}_{i}" + ".webp")
 
     with open("images/fodder/fodder_id", "w") as f:
         f.write(str(fodder_id + 1))
@@ -281,7 +279,7 @@ async def get_images(username: str) -> Images | JSONResponse:
 
     images = []
     while len(images) < 8:
-        images.append(get_image_bytes(f"images/fodder/{sys_random.randint(0, fodder_id - 1)}_{sys_random.randint(0, 9)}.webp"))
+        images.append(get_image_bytes(f"images/fodder/{random.randint(0, fodder_id - 1)}_{random.randint(0, 9)}.webp"))
     images.append(get_image_bytes(f"images/users/{username}.webp"))
     random.shuffle(images)
 
