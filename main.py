@@ -22,6 +22,8 @@ load_dotenv()
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 
+sys_random = random.SystemRandom()
+
 app = FastAPI(
     title="Potauth API",
     summary="The Potato-based authentication API",
@@ -117,7 +119,7 @@ def random_crop(img: Image, size: tuple[int, int] = (256, 256)) -> Image:
     """Randomly crop an image."""
     if img.size[0] < size[0] or img.size[1] < size[1]:
         return img.resize((size[0], size[1])) # If the image is undersized, just return a sized version of it
-    start_corner = random.randint(0, img.size[0] - size[0]), random.randint(0, img.size[1] - size[1])
+    start_corner = sys_random.randint(0, img.size[0] - size[0]), sys_random.randint(0, img.size[1] - size[1])
     return img.crop((start_corner[0], start_corner[1], start_corner[0] + size[0], start_corner[1] + size[1]))
 
 
