@@ -159,11 +159,10 @@ async def login(username: str,
         lines = f.readlines()
         for line in lines:
             line = line.strip().split(":")
-            print(line)
             if line[0] != username:
                 continue
             if line[1] != str(favourite_potato.value):
-                return JSONResponse(status_code=401, content={ "message": "Incorrect login data." })
+                return JSONResponse(status_code=401, content={ "message": "Incorrect potato data." })
             if not os.path.exists("images/users"):
                 os.mkdir("images/users")
             if not os.path.exists(f"images/users/{username}.webp"):
