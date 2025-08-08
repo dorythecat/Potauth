@@ -165,8 +165,6 @@ async def login(username: str,
                 return JSONResponse(status_code=401, content={ "message": "Incorrect login data." })
             if not os.path.exists("images/users"):
                 os.mkdir("images/users")
-            if not os.path.exists(f"images/users/{username}.webp"):
-                return JSONResponse(status_code=404, content={ "message": "User does not exist." })
 
             # Check image
             if get_potato_code(Image.open(BytesIO(base64.b64decode(image)))) != line[2]:
@@ -275,7 +273,7 @@ async def get_images(username: str) -> Images | JSONResponse:
     if not os.path.exists("images/fodder"):
         return JSONResponse(status_code=404, content={ "message": "There are no fodder images available." })
     if not (os.path.exists("images/users") and os.path.exists(f"images/users/{username}.webp")):
-        return JSONResponse(status_code=404, content={ "message": "Tha user does not exist." })
+        return JSONResponse(status_code=404, content={ "message": "That user does not exist." })
     with open("images/fodder/fodder_id", "r") as f:
         fodder_id = int(f.read().strip())
 
