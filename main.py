@@ -157,22 +157,24 @@ async def login(username: str,
 
     with open(USERS_DB, "r") as f:
         lines = f.readlines()
-        for line in lines:
-            line = line.strip().split(":")
-            if line[0] != username:
-                continue
-            if line[1] != str(favourite_potato.value):
-                return JSONResponse(status_code=401, content={ "message": "Incorrect potato data." })
-            if not os.path.exists("images/users"):
-                os.mkdir("images/users")
-            if not os.path.exists(f"images/users/{username}.webp"):
-                return JSONResponse(status_code=404, content={ "message": "User does not exist." })
 
-            # Check image
-            if get_potato_code(Image.open(BytesIO(base64.b64decode(image)))) != line[2]:
-                return JSONResponse(status_code=401, content={ "message": "Incorrect login data." })
+    for line in lines:
+        line = line.strip().split(":")
+        if line[0] != username:
+           continue
+        if line[1] != str(favourite_potato.value):
+            return JSONResponse(status_code=401, content={ "message": "Incorrect potato data." })
+        if not os.path.exists("images/users"):
+            os.mkdir("images/users")
+        if not os.path.exists(f"images/users/{username}.webp"):
+            return JSONResponse(status_code=404, content={ "message": "User does not exist." })
 
-            return create_access_token({"access_token": username})
+        # Check image
+        if get_potato_code(Image.open(BytesIO(base64.b64decode(image)))) != line[2]:
+            return JSONResponse(status_code=401, content={ "message": "Incorrect login data." })
+
+        return create_access_token({"access_token": username})
+
     return JSONResponse(status_code=404, content={ "message": "User does not exist." })
 
 
@@ -190,10 +192,10 @@ async def register(username: str,
     if os.path.exists(USERS_DB):
         with open(USERS_DB, "r") as f:
             lines = f.readlines()
-            for line in lines:
-                line = line.strip().split(":")
-                if line[0] == username:
-                    return JSONResponse(status_code=401, content={ "message": "User already exists." })
+        for line in lines:
+            line = line.strip().split(":")
+            if line[0] == username:
+                return JSONResponse(status_code=401, content={ "message": "User already exists." })
     img = Image.open(BytesIO(base64.b64decode(image)))
     img = random_crop(img)
     potato_code = get_potato_code(img)
