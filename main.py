@@ -314,10 +314,7 @@ async def get_posts(username: str) -> list[bytes]:
         line = line.strip().split(":")
         if line[0] != username:
             continue
-        img = Image.open(f"images/posts/{line[1]}.webp")
-        img_byte_arr = BytesIO()
-        img.save(img_byte_arr, format='WEBP')
-        posts.append(base64.b64encode(img_byte_arr.getvalue()))
+        posts.append(get_image_bytes(f"images/posts/{line[1]}.webp"))
     return posts
 
 
