@@ -9,109 +9,6 @@ const your_potatoes_container = document.getElementById("your_potatoes_container
 const potato_upload_file = document.getElementById("potato_upload_file");
 const logout = document.getElementById("logout");
 
-document.getElementById("login_button").onclick = function() {
-    const username = document.getElementById("username_login").value;
-    const potatoType = document.getElementById("potato_type_login").value;
-
-    if (username.length <  4) {
-        alert("Username must be at least 4 characters long!");
-        return;
-    }
-
-    if (username.length > 32) {
-        alert("Username must be at most 32 characters long!");
-        return;
-    }
-
-    fetch(`${API_URL}/get_images?username=${username}`, {
-        method: "GET",
-        headers: {}
-    }).catch(err => console.log(err)).then(res => {
-        if (res.status !== 200) {
-            alert("Login failed!");
-            document.location.reload();
-            return;
-        }
-        res.json().then(res => {
-            login_and_register.style.paddingTop = "0";
-            for (const potato of potato_login_container.children) {
-                potato.src = `data:image/webp;base64,${res[potato.id]}`;
-                potato.onclick = function() {
-                    const formData = new FormData();
-                    formData.append("image", res[potato.id]);
-
-                    const response = fetch(`${API_URL}/login?username=${username}&favourite_potato=${potatoType}`, {
-                        method: "POST",
-                        headers: {},
-                        body: formData
-                    }).catch(err => console.log(err)).then(r => {
-                        if (r.status !== 200) {
-                            alert("Login failed!");
-                            document.location.reload();
-                            return;
-                        }
-                        r.json().then(r => {
-                            document.cookie = `username=${username}; Max-Age=1800;`;
-                            document.cookie = `potatoType=${potatoType}; Max-Age=1800;`;
-                            document.cookie = `token=${r}; Max-Age=1800;`;
-                            document.location.reload();
-                        });
-                    });
-                }
-            }
-            potato_login_container.style.display = "flex";
-            $.scrollify.update(); // Make sure the spacing is right
-        });
-    });
-}
-
-document.getElementById("register_button").onclick = function() {
-    const username = document.getElementById("username_register").value;
-    const potatoType = document.getElementById("potato_type_register").value;
-    const potato_register_file = document.getElementById("potato_register_file");
-
-    if (username.length <  4) {
-        alert("Username must be at least 4 characters long");
-        return;
-    }
-
-    potato_register_file.onchange = function() {
-        const file = this.files[0];
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = function() {
-            const formData = new FormData();
-            formData.append("image", reader.result.split(",")[1]);
-
-            fetch(`${API_URL}/register?username=${username}&favourite_potato=${potatoType}`, {
-                method: "POST",
-                headers: {},
-                body: formData
-            }).catch(err => console.log(err)).then(r => {
-                if (r.status !== 200) {
-                    alert("Registration failed!");
-                    document.location.reload();
-                    return;
-                }
-                r.json().then(r => {
-                    document.cookie = `username=${username}; Max-Age=1800;`;
-                    document.cookie = `potatoType=${potatoType}; Max-Age=1800;`;
-                    document.cookie = `token=${r}; Max-Age=1800;`;
-                    document.location.reload();
-                });
-            });
-        }
-    }
-    potato_register_file.style.display = "block";
-}
-
-logout.onclick = function() {
-    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC";
-    document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-    document.cookie = "potatoType=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-    document.location.reload();
-}
-
 function getCookie(name) {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -124,49 +21,151 @@ if (document.cookie.includes("token=")) {
     info.remove();
     login_and_register.remove();
     logout.style.display = "block";
+
+    logout.onclick = function() {
+        document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+        document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+        document.cookie = "potatoType=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+        document.location.reload();
+    }
+
+    // Potatoes
+    fetch(`${API_URL}/potatoes/${getCookie("username")}`, {
+        method: "GET",
+        headers: {}
+    }).catch(err => console.log(err)).then(res => {
+        if (res.status !== 200) {
+            your_potatoes_container.innerHTML = "You have no potatoes!";
+            return;
+        }
+        res.json().then(res => {
+            for (const potato of res) {
+                your_potatoes_container.innerHTML += `<img src="data:image/webp;base64,${potato}" alt="Potato">`;
+            }
+        });
+    });
 } else {
     content.remove();
     your_potatoes.remove();
-}
 
+    document.getElementById("login_button").onclick = function() {
+        const username = document.getElementById("username_login").value;
+        const potatoType = document.getElementById("potato_type_login").value;
 
-// Potatoes
-fetch(`${API_URL}/potatoes/${getCookie("username")}`, {
-    method: "GET",
-    headers: {}
-}).catch(err => console.log(err)).then(res => {
-    if (res.status !== 200) {
-        your_potatoes_container.innerHTML = "You have no potatoes!";
-        return;
-    }
-    res.json().then(res => {
-        for (const potato of res) {
-            your_potatoes_container.innerHTML += `<img src="data:image/webp;base64,${potato}" alt="Potato">`;
+        if (username.length <  4) {
+            alert("Username must be at least 4 characters long!");
+            return;
         }
-    });
-});
 
-potato_upload_file.onchange = function() {
-    const file = this.files[0];
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = function() {
-        const formData = new FormData();
-        formData.append("image", reader.result.split(",")[1]);
+        if (username.length > 32) {
+            alert("Username must be at most 32 characters long!");
+            return;
+        }
 
-        fetch(`${API_URL}/post`, {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${getCookie("token")}`
-            },
-            body: formData
-        }).catch(err => console.log(err)).then(r => {
-            if (r.status !== 200) {
-                alert("Upload failed!");
+        fetch(`${API_URL}/get_images?username=${username}`, {
+            method: "GET",
+            headers: {}
+        }).catch(err => console.log(err)).then(res => {
+            if (res.status !== 200) {
+                alert("Login failed!");
+                document.location.reload();
                 return;
             }
-            document.location.reload();
-        })
+            res.json().then(res => {
+                login_and_register.style.paddingTop = "0";
+                for (const potato of potato_login_container.children) {
+                    potato.src = `data:image/webp;base64,${res[potato.id]}`;
+                    potato.onclick = function() {
+                        const formData = new FormData();
+                        formData.append("image", res[potato.id]);
+
+                        const response = fetch(`${API_URL}/login?username=${username}&favourite_potato=${potatoType}`, {
+                            method: "POST",
+                            headers: {},
+                            body: formData
+                        }).catch(err => console.log(err)).then(r => {
+                            if (r.status !== 200) {
+                                alert("Login failed!");
+                                document.location.reload();
+                                return;
+                            }
+                            r.json().then(r => {
+                                document.cookie = `username=${username}; Max-Age=1800;`;
+                                document.cookie = `potatoType=${potatoType}; Max-Age=1800;`;
+                                document.cookie = `token=${r}; Max-Age=1800;`;
+                                document.location.reload();
+                            });
+                        });
+                    }
+                }
+                potato_login_container.style.display = "flex";
+                $.scrollify.update(); // Make sure the spacing is right
+            });
+        });
+    }
+
+    document.getElementById("register_button").onclick = function() {
+        const username = document.getElementById("username_register").value;
+        const potatoType = document.getElementById("potato_type_register").value;
+        const potato_register_file = document.getElementById("potato_register_file");
+
+        if (username.length <  4) {
+            alert("Username must be at least 4 characters long");
+            return;
+        }
+
+        potato_register_file.onchange = function() {
+            const file = this.files[0];
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function() {
+                const formData = new FormData();
+                formData.append("image", reader.result.split(",")[1]);
+
+                fetch(`${API_URL}/register?username=${username}&favourite_potato=${potatoType}`, {
+                    method: "POST",
+                    headers: {},
+                    body: formData
+                }).catch(err => console.log(err)).then(r => {
+                    if (r.status !== 200) {
+                        alert("Registration failed!");
+                        document.location.reload();
+                        return;
+                    }
+                    r.json().then(r => {
+                        document.cookie = `username=${username}; Max-Age=1800;`;
+                        document.cookie = `potatoType=${potatoType}; Max-Age=1800;`;
+                        document.cookie = `token=${r}; Max-Age=1800;`;
+                        document.location.reload();
+                    });
+                });
+            }
+        }
+        potato_register_file.style.display = "block";
+    }
+
+    potato_upload_file.onchange = function() {
+        const file = this.files[0];
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function() {
+            const formData = new FormData();
+            formData.append("image", reader.result.split(",")[1]);
+
+            fetch(`${API_URL}/post`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${getCookie("token")}`
+                },
+                body: formData
+            }).catch(err => console.log(err)).then(r => {
+                if (r.status !== 200) {
+                    alert("Upload failed!");
+                    return;
+                }
+                document.location.reload();
+            })
+        }
     }
 }
 
