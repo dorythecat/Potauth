@@ -37,9 +37,30 @@ if (document.cookie.includes("token=")) {
         if (res.status !== 200) your_potatoes_container.innerHTML = "You have no potatoes!";
         else res.json().then(res => {
             for (const potato of res)
-                your_potatoes_container.innerHTML += `<img src="data:image/webp;base64,${potato}" alt="Potato">`;
+                your_potatoes_container.innerHTML += `<img src="data:image/webp;base64,${potato}" alt="Potato" onclick="delete_potato(${potato})">`;
         });
     });
+
+    potato_upload_file.onchange = function() {
+        const file = this.files[0];
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function() {
+            const formData = new FormData();
+            formData.append("image", reader.result.split(",")[1]);
+
+            fetch(`${API_URL}/post`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${getCookie("token")}`
+                },
+                body: formData
+            }).catch(err => alert(err)).then(r => {
+                if (r.status === 200) document.location.reload();
+                else alert("Upload failed!");
+            });
+        }
+    }
 } else {
     content.remove();
     your_potatoes.remove();
@@ -128,27 +149,10 @@ if (document.cookie.includes("token=")) {
         }
         potato_register_file.style.display = "block";
     }
+}
 
-    potato_upload_file.onchange = function() {
-        const file = this.files[0];
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = function() {
-            const formData = new FormData();
-            formData.append("image", reader.result.split(",")[1]);
-
-            fetch(`${API_URL}/post`, {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${getCookie("token")}`
-                },
-                body: formData
-            }).catch(err => alert(err)).then(r => {
-                if (r.status === 200) document.location.reload();
-                else alert("Upload failed!");
-            });
-        }
-    }
+function delete_potato(potato) {
+    console.log("Delete");
 }
 
 $(document).ready(function() {
