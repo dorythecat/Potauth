@@ -154,6 +154,7 @@ footer p {
 
 #your_potatoes {
     margin-bottom: 20px;
+    padding-top: 20px;
 }
 
 @media screen and (max-width: 800px) {
