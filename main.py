@@ -86,24 +86,17 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
+validationError = HTTPException(
+    status_code=401,
+    detail="Could not validate credentials",
+    headers={"WWW-Authenticate": "Bearer"},
+)
+
 def get_current_token(credentials: HTTPAuthorizationCredentials = Security(security)) -> str | HTTPException:
     """Get and validate the Authorization header token."""
-    token = credentials.credentials if credentials else None
-    if not token:
-        return HTTPException(
-            status_code=401,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    try:
-        data = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return data['access_token']
-    except InvalidTokenError:
-        raise HTTPException(
-            status_code=401,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    if not credentials: raise validationError
+    try: return jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])['access_token']
+    except InvalidTokenError: raise validationError
 
 
 def get_potato_code(img: Image) -> str:
@@ -142,8 +135,8 @@ class PotatoType(str, Enum):
           response_model=str,
           tags=["Authentication"],
           responses={
-              401: {"model": ErrorMessage},
-              404: {"model": ErrorMessage}
+              401: { "model": ErrorMessage },
+              404: { "model": ErrorMessage }
           })
 async def login(username: str,
                 favourite_potato: PotatoType,
