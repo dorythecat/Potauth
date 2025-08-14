@@ -33,15 +33,11 @@ if (document.cookie.includes("token=")) {
     fetch(`${API_URL}/potatoes/${getCookie("username")}`, {
         method: "GET",
         headers: {}
-    }).catch(err => console.log(err)).then(res => {
-        if (res.status !== 200) {
-            your_potatoes_container.innerHTML = "You have no potatoes!";
-            return;
-        }
-        res.json().then(res => {
-            for (const potato of res) {
+    }).catch(err => alert(err)).then(res => {
+        if (res.status !== 200) your_potatoes_container.innerHTML = "You have no potatoes!";
+        else res.json().then(res => {
+            for (const potato of res)
                 your_potatoes_container.innerHTML += `<img src="data:image/webp;base64,${potato}" alt="Potato">`;
-            }
         });
     });
 } else {
@@ -52,26 +48,19 @@ if (document.cookie.includes("token=")) {
         const username = document.getElementById("username_login").value;
         const potatoType = document.getElementById("potato_type_login").value;
 
-        if (username.length <  4) {
-            alert("Username must be at least 4 characters long!");
-            return;
-        }
-
-        if (username.length > 32) {
-            alert("Username must be at most 32 characters long!");
+        if (username.length <  4 && username.length > 32) {
+            alert("Username must be between 4 and 32 characters long!");
             return;
         }
 
         fetch(`${API_URL}/get_images?username=${username}`, {
             method: "GET",
             headers: {}
-        }).catch(err => console.log(err)).then(res => {
+        }).catch(err => alert(err)).then(res => {
             if (res.status !== 200) {
                 alert("Login failed!");
                 document.location.reload();
-                return;
-            }
-            res.json().then(res => {
+            } else res.json().then(res => {
                 login_and_register.style.paddingTop = "0";
                 for (const potato of potato_login_container.children) {
                     potato.src = `data:image/webp;base64,${res[potato.id]}`;
@@ -79,17 +68,15 @@ if (document.cookie.includes("token=")) {
                         const formData = new FormData();
                         formData.append("image", res[potato.id]);
 
-                        const response = fetch(`${API_URL}/login?username=${username}&favourite_potato=${potatoType}`, {
+                        fetch(`${API_URL}/login?username=${username}&favourite_potato=${potatoType}`, {
                             method: "POST",
                             headers: {},
                             body: formData
-                        }).catch(err => console.log(err)).then(r => {
+                        }).catch(err => alert(err)).then(r => {
                             if (r.status !== 200) {
                                 alert("Login failed!");
                                 document.location.reload();
-                                return;
-                            }
-                            r.json().then(r => {
+                            } else r.json().then(r => {
                                 document.cookie = `username=${username}; Max-Age=1800;`;
                                 document.cookie = `potatoType=${potatoType}; Max-Age=1800;`;
                                 document.cookie = `token=${r}; Max-Age=1800;`;
@@ -109,8 +96,8 @@ if (document.cookie.includes("token=")) {
         const potatoType = document.getElementById("potato_type_register").value;
         const potato_register_file = document.getElementById("potato_register_file");
 
-        if (username.length <  4) {
-            alert("Username must be at least 4 characters long");
+        if (username.length <  4 || username.length > 32) {
+            alert("Invalid username provided!");
             return;
         }
 
@@ -126,13 +113,11 @@ if (document.cookie.includes("token=")) {
                     method: "POST",
                     headers: {},
                     body: formData
-                }).catch(err => console.log(err)).then(r => {
+                }).catch(err => alert(err)).then(r => {
                     if (r.status !== 200) {
                         alert("Registration failed!");
                         document.location.reload();
-                        return;
-                    }
-                    r.json().then(r => {
+                    } else r.json().then(r => {
                         document.cookie = `username=${username}; Max-Age=1800;`;
                         document.cookie = `potatoType=${potatoType}; Max-Age=1800;`;
                         document.cookie = `token=${r}; Max-Age=1800;`;
@@ -158,13 +143,10 @@ if (document.cookie.includes("token=")) {
                     "Authorization": `Bearer ${getCookie("token")}`
                 },
                 body: formData
-            }).catch(err => console.log(err)).then(r => {
-                if (r.status !== 200) {
-                    alert("Upload failed!");
-                    return;
-                }
-                document.location.reload();
-            })
+            }).catch(err => alert(err)).then(r => {
+                if (r.status === 200) document.location.reload();
+                else alert("Upload failed!");
+            });
         }
     }
 }
