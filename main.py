@@ -103,16 +103,13 @@ def get_potato_code(img: Image) -> str:
     """Get the potato code from an image."""
     # Literally just an image hash lol
     pixel_data = list(img.resize((16, 16)).convert("L").getdata())
-    avg_pixel = sum(pixel_data) / len(pixel_data)
-    bits = "".join(['1' if (px >= avg_pixel) else '0' for px in pixel_data])
-    hex_representation = str(hex(int(bits, 2)))[2:][::-1].upper()
-    return hex_representation
+    return str(hex(int("".join(['1' if (px >= sum(pixel_data) / len(pixel_data)) else '0' for px in pixel_data]), 2)))[2:][::-1].upper()
 
 
 def random_crop(img: Image, size: tuple[int, int] = (256, 256)) -> Image:
     """Randomly crop an image."""
-    if img.size[0] < size[0] or img.size[1] < size[1]:
-        return img.resize((size[0], size[1]))  # If the image is undersized, just return a properly sized version of it
+    # If the image is undersized, just return a properly sized version of it
+    if img.size[0] < size[0] or img.size[1] < size[1]: return img.resize((size[0], size[1]))
     start_corner = random.randint(0, img.size[0] - size[0]), random.randint(0, img.size[1] - size[1])
     return img.crop((start_corner[0], start_corner[1], start_corner[0] + size[0], start_corner[1] + size[1]))
 
@@ -177,9 +174,7 @@ async def register(username: str,
     """Register a new user."""
     if os.path.exists(USERS_DB):
         with open(USERS_DB, "r") as f: lines = f.readlines()
-        for line in lines:
-            line = line.strip().split(":")
-            if line[0] == username: return JSONResponse(status_code=401, content={"message": "User already exists."})
+        if username in lines: return JSONResponse(status_code=401, content={"message": "User already exists."})
     img = Image.open(BytesIO(base64.b64decode(image)))
     img = random_crop(img)
     potato_code = get_potato_code(img)
@@ -235,9 +230,8 @@ class Images(BaseModel):
 
 def get_image_bytes(image: str) -> bytes:
     """Get the image bytes from the image string."""
-    img = Image.open(image)
     img_byte_arr = BytesIO()
-    img.save(img_byte_arr, format='WEBP')
+    Image.open(image).save(img_byte_arr, format='WEBP')
     return base64.b64encode(img_byte_arr.getvalue())
 
 
@@ -296,8 +290,7 @@ async def post(token: Annotated[str, Depends(get_current_token)],
     img = Image.open(BytesIO(base64.b64decode(image)))
     potato_code = get_potato_code(img)
     img.save(f"images/posts/{potato_code}.webp")
-    with open(POTATO_DB, "a+") as f:
-        f.write(f"\n{token}:{potato_code}")
+    with open(POTATO_DB, "a+") as f: f.write(f"\n{token}:{potato_code}")
 
 
 @app.delete("/delete_post",
@@ -311,6 +304,5 @@ async def del_post(token: Annotated[str, Depends(get_current_token)],
     with open(POTATO_DB, "r") as f: lines = f.readlines()
     with open(POTATO_DB, "w") as f:
         for line in lines:
-            if line.strip().split(":")[1] == potato_code:
-                continue
+            if line.strip().split(":")[1] == potato_code: continue
             f.write(line)
