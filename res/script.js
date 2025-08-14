@@ -37,7 +37,7 @@ if (document.cookie.includes("token=")) {
         if (res.status !== 200) your_potatoes_container.innerHTML = "You have no potatoes!";
         else res.json().then(res => {
             for (const potato of res)
-                your_potatoes_container.innerHTML += `<img src="data:image/webp;base64,${potato}" alt="Potato" onclick="delete_potato(${potato})">`;
+                your_potatoes_container.innerHTML += `<img src="data:image/webp;base64,${potato}" alt="Potato" onclick="window.open(this.src)">`;
         });
     });
 
