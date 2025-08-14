@@ -6,12 +6,12 @@ import random
 import os
 import base64
 
-from fastapi import Depends, FastAPI, HTTPException, Security, Body, Response, File
+from fastapi import Depends, FastAPI, HTTPException, Security, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import RedirectResponse, JSONResponse, PlainTextResponse
 from pydantic import BaseModel
-from datetime import datetime, timedelta, timezone, time
+from datetime import datetime, timedelta, timezone
 from jwt import InvalidTokenError
 
 from PIL import Image
