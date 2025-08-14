@@ -1,5 +1,4 @@
 from enum import Enum
-from time import sleep
 from typing import Annotated
 
 import jwt
