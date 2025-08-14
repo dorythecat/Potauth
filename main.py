@@ -44,12 +44,10 @@ app = FastAPI(
         {
             "name": "Authentication",
             "description": "Authentication endpoints"
-        },
-        {
+        }, {
             "name": "Utility",
             "description": "Utility endpoints"
-        },
-        {
+        }, {
             "name": "Potatoes",
             "description": "Potato-related endpoints"
         }
@@ -64,11 +62,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-USERS_DB = "potauth.db" # User database
-POTATO_DB = "potatoes.db" # Potatoes database
+USERS_DB = "potauth.db"  # User database
+POTATO_DB = "potatoes.db"  # Potatoes database
 
-ALGORITHM = "HS256" # Algorith for JWT to use to encode tokens
+ALGORITHM = "HS256"  # Algorith for JWT to use to encode tokens
 security = HTTPBearer()
+
 
 @app.get("/", include_in_schema=False)
 async def root() -> RedirectResponse:
@@ -94,7 +93,7 @@ def get_current_token(credentials: HTTPAuthorizationCredentials = Security(secur
         return HTTPException(
             status_code=401,
             detail="Could not validate credentials",
-            headers={ "WWW-Authenticate": "Bearer" },
+            headers={"WWW-Authenticate": "Bearer"},
         )
     try:
         data = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -103,16 +102,15 @@ def get_current_token(credentials: HTTPAuthorizationCredentials = Security(secur
         raise HTTPException(
             status_code=401,
             detail="Could not validate credentials",
-            headers={ "WWW-Authenticate": "Bearer" },
+            headers={"WWW-Authenticate": "Bearer"},
         )
-
 
 
 def get_potato_code(img: Image) -> str:
     """Get the potato code from an image."""
     # Literally just an image hash lol
     pixel_data = list(img.resize((16, 16)).convert("L").getdata())
-    avg_pixel = sum(pixel_data)/len(pixel_data)
+    avg_pixel = sum(pixel_data) / len(pixel_data)
     bits = "".join(['1' if (px >= avg_pixel) else '0' for px in pixel_data])
     hex_representation = str(hex(int(bits, 2)))[2:][::-1].upper()
     return hex_representation
@@ -121,7 +119,7 @@ def get_potato_code(img: Image) -> str:
 def random_crop(img: Image, size: tuple[int, int] = (256, 256)) -> Image:
     """Randomly crop an image."""
     if img.size[0] < size[0] or img.size[1] < size[1]:
-        return img.resize((size[0], size[1])) # If the image is undersized, just return a sized version of it
+        return img.resize((size[0], size[1]))  # If the image is undersized, just return a properly sized version of it
     start_corner = random.randint(0, img.size[0] - size[0]), random.randint(0, img.size[1] - size[1])
     return img.crop((start_corner[0], start_corner[1], start_corner[0] + size[0], start_corner[1] + size[1]))
 
@@ -144,43 +142,39 @@ class PotatoType(str, Enum):
           response_model=str,
           tags=["Authentication"],
           responses={
-              401: { "model": ErrorMessage },
-              404: { "model": ErrorMessage }
+              401: {"model": ErrorMessage},
+              404: {"model": ErrorMessage}
           })
 async def login(username: str,
                 favourite_potato: PotatoType,
                 image: Annotated[bytes, File(description="Selected image")]) -> str | JSONResponse:
     """Login to the API."""
-    if not os.path.exists(USERS_DB):
-        return JSONResponse(status_code=401, content={ "message": "User does no exist." })
+    if not os.path.exists(USERS_DB): return JSONResponse(status_code=401, content={"message": "User does no exist."})
 
-    with open(USERS_DB, "r") as f:
-        lines = f.readlines()
+    with open(USERS_DB, "r") as f: lines = f.readlines()
 
     for line in lines:
         line = line.strip().split(":")
-        if line[0] != username:
-           continue
+        if line[0] != username: continue
         if line[1] != str(favourite_potato.value):
-            return JSONResponse(status_code=401, content={ "message": "Incorrect potato data." })
-        if not os.path.exists("images/users"):
-            os.mkdir("images/users")
+            return JSONResponse(status_code=401, content={"message": "Incorrect potato data."})
+        if not os.path.exists("images/users"): os.mkdir("images/users")
         if not os.path.exists(f"images/users/{username}.webp"):
-            return JSONResponse(status_code=404, content={ "message": "User does not exist." })
+            return JSONResponse(status_code=404, content={"message": "User does not exist."})
 
         # Check image
         if get_potato_code(Image.open(BytesIO(base64.b64decode(image)))) != line[2]:
-            return JSONResponse(status_code=401, content={ "message": "Incorrect login data." })
+            return JSONResponse(status_code=401, content={"message": "Incorrect login data."})
 
         return create_access_token({"access_token": username})
 
-    return JSONResponse(status_code=404, content={ "message": "User does not exist." })
+    return JSONResponse(status_code=404, content={"message": "User does not exist."})
 
 
 @app.post("/register",
-          response_model=str,
-          tags=["Authentication"],
-          responses={
+          response_model = str,
+          tags = ["Authentication"],
+          responses = {
               401: { "model": ErrorMessage },
               404: { "model": ErrorMessage }
           })
@@ -189,19 +183,15 @@ async def register(username: str,
                    image: Annotated[bytes, File(description="Selected image")]) -> str | JSONResponse:
     """Register a new user."""
     if os.path.exists(USERS_DB):
-        with open(USERS_DB, "r") as f:
-            lines = f.readlines()
+        with open(USERS_DB, "r") as f: lines = f.readlines()
         for line in lines:
             line = line.strip().split(":")
-            if line[0] == username:
-                return JSONResponse(status_code=401, content={ "message": "User already exists." })
+            if line[0] == username: return JSONResponse(status_code=401, content={"message": "User already exists."})
     img = Image.open(BytesIO(base64.b64decode(image)))
     img = random_crop(img)
     potato_code = get_potato_code(img)
-    with open(USERS_DB, "a+") as f:
-        f.write(f"\n{username}:{favourite_potato.value}:{potato_code}")
-    if not os.path.exists("images/users"):
-        os.mkdir("images/users")
+    with open(USERS_DB, "a+") as f: f.write(f"\n{username}:{favourite_potato.value}:{potato_code}")
+    if not os.path.exists("images/users"): os.mkdir("images/users")
     img.save(f"images/users/{username}.webp")
     return create_access_token({"access_token": username})
 
@@ -210,14 +200,11 @@ async def register(username: str,
             tags=["Authentication"])
 async def delete_user(token: str = Depends(get_current_token)) -> None:
     """Delete a user from the database."""
-    if not os.path.exists(USERS_DB):
-        return # We don't need to do anything at all
-    with open(USERS_DB, "r") as f:
-        lines = f.readlines()
+    if not os.path.exists(USERS_DB): return  # We don't need to do anything at all
+    with open(USERS_DB, "r") as f: lines = f.readlines()
     with open(USERS_DB, "w") as f:
         for line in lines:
-            if line.strip().split(":")[0] != token:
-                f.write(line)
+            if line.strip().split(":")[0] != token: f.write(line)
     os.remove(f"images/users/{token}.webp")
 
 
@@ -226,14 +213,11 @@ async def delete_user(token: str = Depends(get_current_token)) -> None:
 async def add_fodder(image: Annotated[bytes, File(description="The image to send.")]) -> None:
     """Send a potato to the API, that will be added to the fodder list."""
     # Check the max fodder ID
-    if not os.path.exists("images/fodder"):
-        os.mkdir("images/fodder")
+    if not os.path.exists("images/fodder"): os.mkdir("images/fodder")
     if not os.path.exists("images/fodder/fodder_id"):
-        with open("images/fodder/fodder_id", "w+") as f:
-            f.write("0")
+        with open("images/fodder/fodder_id", "w+") as f: f.write("0")
 
-    with open("images/fodder/fodder_id", "r") as f:
-        fodder_id = int(f.read().strip())
+    with open("images/fodder/fodder_id", "r") as f: fodder_id = int(f.read().strip())
 
     # Open the image
     img = Image.open(BytesIO(image))
@@ -241,8 +225,7 @@ async def add_fodder(image: Annotated[bytes, File(description="The image to send
         # Randomly crop 10 times and save the cropped versions
         random_crop(img).save(f"images/fodder/{fodder_id}_{i}" + ".webp")
 
-    with open("images/fodder/fodder_id", "w") as f:
-        f.write(str(fodder_id + 1))
+    with open("images/fodder/fodder_id", "w") as f: f.write(str(fodder_id + 1))
 
 
 class Images(BaseModel):
@@ -267,18 +250,15 @@ def get_image_bytes(image: str) -> bytes:
 
 @app.get("/get_images",
          response_model=Images,
-         responses={
-             404: { "model": ErrorMessage }
-         },
+         responses={ 404: {"model": ErrorMessage} },
          tags=["Utility"])
 async def get_images(username: str) -> Images | JSONResponse:
     """Get a list of images, eight fodder, one the user image."""
     if not os.path.exists("images/fodder"):
-        return JSONResponse(status_code=404, content={ "message": "There are no fodder images available." })
+        return JSONResponse(status_code=404, content={"message": "There are no fodder images available."})
     if not (os.path.exists("images/users") and os.path.exists(f"images/users/{username}.webp")):
-        return JSONResponse(status_code=404, content={ "message": "That user does not exist." })
-    with open("images/fodder/fodder_id", "r") as f:
-        fodder_id = int(f.read().strip())
+        return JSONResponse(status_code=404, content={"message": "That user does not exist."})
+    with open("images/fodder/fodder_id", "r") as f: fodder_id = int(f.read().strip())
 
     images = []
     while len(images) < 8:
@@ -304,15 +284,12 @@ async def get_images(username: str) -> Images | JSONResponse:
          tags=["Potatoes"])
 async def get_posts(username: str) -> list[bytes]:
     """Get all potatoes in your gallery."""
-    if not os.path.exists(POTATO_DB):
-        return []
-    with open(POTATO_DB, "r") as f:
-        lines = f.readlines()
+    if not os.path.exists(POTATO_DB): return []
+    with open(POTATO_DB, "r") as f: lines = f.readlines()
     posts = []
     for line in lines:
         line = line.strip().split(":")
-        if line[0] != username:
-            continue
+        if line[0] != username: continue
         posts.append(get_image_bytes(f"images/posts/{line[1]}.webp"))
     return posts
 
@@ -320,10 +297,9 @@ async def get_posts(username: str) -> list[bytes]:
 @app.post("/post",
           tags=["Potatoes"])
 async def post(token: Annotated[str, Depends(get_current_token)],
-               image: Annotated[bytes, File(description="The image to send.")],) -> None:
+               image: Annotated[bytes, File(description="The image to send.")], ) -> None:
     """Post a potato to your gallery."""
-    if not os.path.exists("images/posts"):
-        os.mkdir("images/posts")
+    if not os.path.exists("images/posts"): os.mkdir("images/posts")
     img = Image.open(BytesIO(base64.b64decode(image)))
     potato_code = get_potato_code(img)
     img.save(f"images/posts/{potato_code}.webp")
@@ -336,12 +312,10 @@ async def post(token: Annotated[str, Depends(get_current_token)],
 async def del_post(token: Annotated[str, Depends(get_current_token)],
                    image: Annotated[bytes, File(description="The image to send.")]) -> None:
     """Delete a potato from your gallery."""
-    if not os.path.exists("images/posts"):
-        return
+    if not (token and os.path.exists("images/posts")): return
     potato_code = get_potato_code(Image.open(BytesIO(base64.b64decode(image))))
     os.remove(f"images/posts/{potato_code}.webp")
-    with open(POTATO_DB, "r") as f:
-        lines = f.readlines()
+    with open(POTATO_DB, "r") as f: lines = f.readlines()
     with open(POTATO_DB, "w") as f:
         for line in lines:
             if line.strip().split(":")[1] == potato_code:
