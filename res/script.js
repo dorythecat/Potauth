@@ -51,9 +51,7 @@ if (document.cookie.includes("token=")) {
 
             fetch(`${API_URL}/post`, {
                 method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${getCookie("token")}`
-                },
+                headers: { "Authorization": `Bearer ${getCookie("token")}` },
                 body: formData
             }).catch(err => alert(err)).then(r => {
                 if (r.status === 200) document.location.reload();
@@ -149,10 +147,6 @@ if (document.cookie.includes("token=")) {
         }
         potato_register_file.style.display = "block";
     }
-}
-
-function delete_potato(potato) {
-    console.log("Delete");
 }
 
 $(document).ready(function() {
