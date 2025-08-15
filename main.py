@@ -88,7 +88,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
 validationError = HTTPException(
     status_code=401,
     detail="Could not validate credentials",
-    headers={"WWW-Authenticate": "Bearer"}
+    headers={ "WWW-Authenticate": "Bearer" }
 )
 
 def get_current_token(credentials: HTTPAuthorizationCredentials = Security(security)) -> str | HTTPException:
@@ -153,11 +153,11 @@ async def login(username: str,
 
         # Check image
         if get_potato_code(Image.open(BytesIO(base64.b64decode(image)))) != line[2]:
-            return JSONResponse(status_code=401, content={"message": "Incorrect login data."})
+            return JSONResponse(status_code=401, content={ "message": "Incorrect login data." })
 
-        return create_access_token({"access_token": username})
+        return create_access_token({ "access_token": username })
 
-    return JSONResponse(status_code=404, content={"message": "User does not exist."})
+    return JSONResponse(status_code=404, content={ "message": "User does not exist." })
 
 
 @app.post("/register",
@@ -180,7 +180,7 @@ async def register(username: str,
     with open(USERS_DB, "a+") as f: f.write(f"\n{username}:{favourite_potato.value}:{potato_code}")
     if not os.path.exists("images/users"): os.mkdir("images/users")
     img.save(f"images/users/{username}.webp")
-    return create_access_token({"access_token": username})
+    return create_access_token({ "access_token": username })
 
 
 @app.delete("/delete_user",
@@ -241,7 +241,7 @@ def get_image_bytes(image: str) -> bytes:
 async def get_images(username: str) -> Images | JSONResponse:
     """Get a list of images, eight fodder, one the user image."""
     if not os.path.exists("images/fodder"):
-        return JSONResponse(status_code=404, content={ "message": "Couldn't fetch images for this user." })
+        return JSONResponse(status_code=404, content={ "message": "There are no fodder images available." })
     if not (os.path.exists("images/users") and os.path.exists(f"images/users/{username}.webp")):
         return JSONResponse(status_code=404, content={ "message": "That user does not exist." })
     with open("images/fodder/fodder_id", "r") as f: fodder_id = int(f.read().strip())
