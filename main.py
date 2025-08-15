@@ -139,7 +139,7 @@ async def login(username: str,
                 favourite_potato: PotatoType,
                 image: Annotated[bytes, File(description="Selected image")]) -> str | JSONResponse:
     """Login to the API."""
-    if not os.path.exists(USERS_DB): return JSONResponse(status_code=401, content={"message": "User does no exist."})
+    if not os.path.exists(USERS_DB): return JSONResponse(status_code=401, content={ "message": "User does no exist." })
 
     with open(USERS_DB, "r") as f: lines = f.readlines()
 
@@ -147,10 +147,10 @@ async def login(username: str,
         line = line.strip().split(":")
         if line[0] != username: continue
         if line[1] != str(favourite_potato.value):
-            return JSONResponse(status_code=401, content={"message": "Incorrect potato data."})
+            return JSONResponse(status_code=401, content={ "message": "Incorrect potato data." })
         if not os.path.exists("images/users"): os.mkdir("images/users")
         if not os.path.exists(f"images/users/{username}.webp"):
-            return JSONResponse(status_code=404, content={"message": "User does not exist."})
+            return JSONResponse(status_code=404, content={ "message": "User does not exist." })
 
         # Check image
         if get_potato_code(Image.open(BytesIO(base64.b64decode(image)))) != line[2]:
@@ -174,7 +174,7 @@ async def register(username: str,
     """Register a new user."""
     if os.path.exists(USERS_DB):
         with open(USERS_DB, "r") as f: lines = f.readlines()
-        if username in lines: return JSONResponse(status_code=401, content={"message": "User already exists."})
+        if username in lines: return JSONResponse(status_code=401, content={ "message": "User already exists." })
     img = Image.open(BytesIO(base64.b64decode(image)))
     img = random_crop(img)
     potato_code = get_potato_code(img)
@@ -242,9 +242,9 @@ def get_image_bytes(image: str) -> bytes:
 async def get_images(username: str) -> Images | JSONResponse:
     """Get a list of images, eight fodder, one the user image."""
     if not os.path.exists("images/fodder"):
-        return JSONResponse(status_code=404, content={"message": "There are no fodder images available."})
+        return JSONResponse(status_code=404, content={ "message": "There are no fodder images available." })
     if not (os.path.exists("images/users") and os.path.exists(f"images/users/{username}.webp")):
-        return JSONResponse(status_code=404, content={"message": "That user does not exist."})
+        return JSONResponse(status_code=404, content={ "message": "That user does not exist." })
     with open("images/fodder/fodder_id", "r") as f: fodder_id = int(f.read().strip())
 
     images = []
