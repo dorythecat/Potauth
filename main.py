@@ -56,10 +56,10 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=['*'],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=['*'],
+    allow_headers=['*'],
 )
 
 USERS_DB = "potauth.db"  # User database
@@ -70,15 +70,32 @@ security = HTTPBearer()
 
 @app.get("/", include_in_schema=False)
 async def root() -> RedirectResponse:
+    """
+    The root page.
+
+    :return: A 301 redirection to the documentation page for the API.
+    """
     return RedirectResponse("/docs", status_code=301)
 
 
 @app.get("/robots.txt", include_in_schema=False)
 async def robots() -> PlainTextResponse:
+    """
+    Robots.txt file.
+
+    :return: A robots.txt file that disallows the crawling of all pages.
+    """
     return PlainTextResponse("User-agent: *\nDisallow: /", media_type="text/plain")
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
+    """
+    Create an access token.
+
+    :param data: The data to include in the token.
+    :param expires_delta: The expiration time of the token.
+    :return: The token.
+    """
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + (expires_delta if expires_delta else timedelta(minutes=30))
     to_encode.update({"exp": expire})
@@ -92,21 +109,36 @@ validationError = HTTPException(
 )
 
 def get_current_token(credentials: HTTPAuthorizationCredentials = Security(security)) -> str | HTTPException:
-    """Get and validate the Authorization header token."""
+    """
+    Get and validate the Authorization header token.
+
+    :param credentials: The Authorization header.
+    :return: The token.
+    """
     if not credentials: raise validationError
     try: return jwt.decode(credentials.credentials, SECRET_KEY, algorithms=["HS256"])['access_token']
     except InvalidTokenError: raise validationError
 
 
 def get_potato_code(img: Image) -> str:
-    """Get the potato code from an image."""
-    # Literally just an image hash lol
+    """
+    Get the potato code from an image (literally just an image hash).
+
+    :param img: The image to get the potato code from.
+    :return: The potato code for the image.
+    """
     pixel_data = list(img.resize((16, 16)).convert("L").getdata())
     return str(hex(int("".join(['1' if (px >= sum(pixel_data) / len(pixel_data)) else '0' for px in pixel_data]), 2)))[2:][::-1].upper()
 
 
 def random_crop(img: Image, size: tuple[int, int] = (256, 256)) -> Image:
-    """Randomly crop an image."""
+    """
+    Randomly crop an image.
+
+    :param img: The image to crop.
+    :param size: The final size of the cropped image.
+    :return: The cropped image.
+    """
     # If the image is undersized, just return a properly sized version of it
     if img.size[0] < size[0] or img.size[1] < size[1]: return img.resize((size[0], size[1]))
     start_corner = random.randint(0, img.size[0] - size[0]), random.randint(0, img.size[1] - size[1])
@@ -137,7 +169,14 @@ class PotatoType(str, Enum):
 async def login(username: str,
                 favourite_potato: PotatoType,
                 image: Annotated[bytes, File(description="Selected image")]) -> str | JSONResponse:
-    """Login to the API."""
+    """
+    Login to the API.
+
+    :param username: The username of the user.
+    :param favourite_potato: The favourite potato of the user.
+    :param image: The image of the user.
+    :return: The authentication token of the user.
+    """
     if not os.path.exists(USERS_DB): return JSONResponse(status_code=401, content={ "message": "User does no exist." })
 
     with open(USERS_DB, "r") as f: lines = f.readlines()
@@ -170,7 +209,14 @@ async def login(username: str,
 async def register(username: str,
                    favourite_potato: PotatoType,
                    image: Annotated[bytes, File(description="Selected image")]) -> str | JSONResponse:
-    """Register a new user."""
+    """
+    Register a new user.
+
+    :param username: The username of the new user.
+    :param favourite_potato: The favourite potato of the new user.
+    :param image: The image of the new user.
+    :return: The authentication token of the new user.
+    """
     if os.path.exists(USERS_DB):
         with open(USERS_DB, "r") as f: lines = f.readlines()
         if username in lines: return JSONResponse(status_code=401, content={ "message": "User already exists." })
@@ -186,7 +232,12 @@ async def register(username: str,
 @app.delete("/delete_user",
             tags=["Authentication"])
 async def delete_user(token: str = Depends(get_current_token)) -> None:
-    """Delete a user from the database."""
+    """
+    Delete a user from the database.
+
+    :param token: The authentication token of the user to delete.
+    :return: This function does not return anything.
+    """
     if not os.path.exists(USERS_DB): return  # We don't need to do anything at all
     with open(USERS_DB, "r") as f: lines = f.readlines()
     with open(USERS_DB, "w") as f:
@@ -198,7 +249,12 @@ async def delete_user(token: str = Depends(get_current_token)) -> None:
 @app.post("/add_fodder",
           tags=["Utility"])
 async def add_fodder(image: Annotated[bytes, File(description="The image to send.")]) -> None:
-    """Send a potato to the API, that will be added to the fodder list."""
+    """
+    Send a potato to the API, that will be added to the fodder list.
+
+    :param image: The image to add to the fodder list.
+    :return: This function does not return anything.
+    """
     # Check the max fodder ID
     if not os.path.exists("images/fodder"): os.mkdir("images/fodder")
     if not os.path.exists("images/fodder/fodder_id"):
@@ -228,7 +284,12 @@ class Images(BaseModel):
 
 
 def get_image_bytes(image: str) -> bytes:
-    """Get the image bytes from the image string."""
+    """
+    Get the image bytes from the image string.
+
+    :param image: The image string.
+    :return: The image byte stream.
+    """
     img_byte_arr = BytesIO()
     Image.open(image).save(img_byte_arr, format='WEBP')
     return base64.b64encode(img_byte_arr.getvalue())
@@ -239,7 +300,12 @@ def get_image_bytes(image: str) -> bytes:
          responses={ 404: {"model": ErrorMessage} },
          tags=["Utility"])
 async def get_images(username: str) -> Images | JSONResponse:
-    """Get a list of images, eight fodder, one the user image."""
+    """
+    Get a list of images, eight fodder, one the user image.
+
+    :param username: The username of the user whose images we want to get.
+    :return: The images, in the form of a list of bytes, or an error message.
+    """
     if not os.path.exists("images/fodder"):
         return JSONResponse(status_code=404, content={ "message": "There are no fodder images available." })
     if not (os.path.exists("images/users") and os.path.exists(f"images/users/{username}.webp")):
@@ -269,7 +335,12 @@ async def get_images(username: str) -> Images | JSONResponse:
          response_model=list[bytes],
          tags=["Potatoes"])
 async def get_posts(username: str) -> list[bytes]:
-    """Get all potatoes in your gallery."""
+    """
+    Get all potatoes in your gallery.
+
+    :param username: The username of the user whose potatoes we want to get.
+    :return: A list of potato images, in the form og a bute stream.
+    """
     if not os.path.exists(POTATO_DB): return []
     with open(POTATO_DB, "r") as f: lines = f.readlines()
     posts = []
@@ -283,7 +354,13 @@ async def get_posts(username: str) -> list[bytes]:
           tags=["Potatoes"])
 async def post(token: Annotated[str, Depends(get_current_token)],
                image: Annotated[bytes, File(description="The image to send.")], ) -> None:
-    """Post a potato to your gallery."""
+    """
+    Post a potato to your gallery.
+
+    :param token: The authentication token of the user posting the potato.
+    :param image: The image to post.
+    :return: This function does not return anything.
+    """
     if not os.path.exists("images/posts"): os.mkdir("images/posts")
     img = Image.open(BytesIO(base64.b64decode(image)))
     potato_code = get_potato_code(img)
@@ -295,7 +372,13 @@ async def post(token: Annotated[str, Depends(get_current_token)],
             tags=["Potatoes"])
 async def del_post(token: Annotated[str, Depends(get_current_token)],
                    image: Annotated[bytes, File(description="The image to send.")]) -> None:
-    """Delete a potato from your gallery."""
+    """
+    Delete a potato from your gallery.
+
+    :param token: The authentication token of the user posting the potato.
+    :param image: The image to delete.
+    :return: This function does not return anything.
+    """
     if not (token and os.path.exists("images/posts")): return
     potato_code = get_potato_code(Image.open(BytesIO(base64.b64decode(image))))
     os.remove(f"images/posts/{potato_code}.webp")
