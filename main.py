@@ -65,7 +65,6 @@ app.add_middleware(
 USERS_DB = "potauth.db"  # User database
 POTATO_DB = "potatoes.db"  # Potatoes database
 
-ALGORITHM = "HS256"  # Algorith for JWT to use to encode tokens
 security = HTTPBearer()
 
 
@@ -83,19 +82,19 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + (expires_delta if expires_delta else timedelta(minutes=30))
     to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return jwt.encode(to_encode, SECRET_KEY, algorithm="HS256")
 
 
 validationError = HTTPException(
     status_code=401,
     detail="Could not validate credentials",
-    headers={"WWW-Authenticate": "Bearer"},
+    headers={"WWW-Authenticate": "Bearer"}
 )
 
 def get_current_token(credentials: HTTPAuthorizationCredentials = Security(security)) -> str | HTTPException:
     """Get and validate the Authorization header token."""
     if not credentials: raise validationError
-    try: return jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])['access_token']
+    try: return jwt.decode(credentials.credentials, SECRET_KEY, algorithms=["HS256"])['access_token']
     except InvalidTokenError: raise validationError
 
 
@@ -276,8 +275,7 @@ async def get_posts(username: str) -> list[bytes]:
     posts = []
     for line in lines:
         line = line.strip().split(":")
-        if line[0] != username: continue
-        posts.append(get_image_bytes(f"images/posts/{line[1]}.webp"))
+        if line[0] == username: posts.append(get_image_bytes(f"images/posts/{line[1]}.webp"))
     return posts
 
 
@@ -304,5 +302,4 @@ async def del_post(token: Annotated[str, Depends(get_current_token)],
     with open(POTATO_DB, "r") as f: lines = f.readlines()
     with open(POTATO_DB, "w") as f:
         for line in lines:
-            if line.strip().split(":")[1] == potato_code: continue
-            f.write(line)
+            if line.strip().split(":")[1] != potato_code: f.write(line)
