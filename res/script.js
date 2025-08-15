@@ -68,7 +68,7 @@ if (document.cookie.includes("token=")) {
         const potatoType = document.getElementById("potato_type_login").value;
 
         if (username.length <  4 && username.length > 32) {
-            alert("Username must be between 4 and 32 characters long!");
+            alert("Login failed!!");
             return;
         }
 
