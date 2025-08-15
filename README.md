@@ -5,14 +5,16 @@ energy-dense.
 
 If they're so perfect as foods, why wouldn't they make a good authentication
 system, right? That is what this project, originally built for
-[Hack Club's Authly](https://authly.hackclub.com), was built to prove.
+[Hack Club's Authly](https://authly.hackclub.com), was built to prove how potatoes
+can be used as a "great" authentication system. It also proves that I can spend 20
+hours of my life in a pointless and foolish joke project and still get paid for it.
 
-Authenticate yourself with a selection of potato-based steps, that ensure
+Authenticate yourself with a selection of potato-based steps that ensure
 your uttermost security at all times, thanks to the best food ever.
 
 # How it works
-Potauth is composed of two parts: The web client, and the backend. Most of the logic
-is handled by the backend, though. The web client serves as a simple human-usable
+Potauth is composed of two parts: The web client, and the backend. The backend
+handles Most of the logic, though. The web client serves as a simple human-usable
 interface for everything on the backend. When you register a new user, the web client
 takes your username and favourite type of potato and sends it to the backend server,
 alongside your image, encoded in base64. The backend then receives this image,
