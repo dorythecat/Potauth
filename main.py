@@ -241,7 +241,7 @@ def get_image_bytes(image: str) -> bytes:
 async def get_images(username: str) -> Images | JSONResponse:
     """Get a list of images, eight fodder, one the user image."""
     if not os.path.exists("images/fodder"):
-        return JSONResponse(status_code=404, content={ "message": "There are no fodder images available." })
+        return JSONResponse(status_code=404, content={ "message": "Couldn't fetch images for this user." })
     if not (os.path.exists("images/users") and os.path.exists(f"images/users/{username}.webp")):
         return JSONResponse(status_code=404, content={ "message": "That user does not exist." })
     with open("images/fodder/fodder_id", "r") as f: fodder_id = int(f.read().strip())
