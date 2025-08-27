@@ -192,8 +192,6 @@ async def login(username: str,
             return JSONResponse(status_code=404, content={ "message": "User does not exist." })
 
         # Check image
-        print(get_potato_code(Image.open(BytesIO(base64.b64decode(image)))))
-        print(line[2])
         if get_potato_code(Image.open(BytesIO(base64.b64decode(image)))) != line[2]:
             return JSONResponse(status_code=401, content={ "message": "Incorrect login data." })
 
