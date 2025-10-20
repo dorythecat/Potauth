@@ -1,4 +1,4 @@
-const API_URL ="https://dory.hackclub.app"
+const API_URL ="https://potauth.onrender.com"
 
 const potato_login_container = document.getElementById("potato_login_container");
 const info = document.getElementById("info");
